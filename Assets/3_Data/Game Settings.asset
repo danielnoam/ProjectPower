@@ -81,3 +81,11 @@ MonoBehaviour:
   smallPackagePrefab: {fileID: 8214273405464619528, guid: bba748e601b84da479e7bc4d64a40b47, type: 3}
   mediumPackagePrefab: {fileID: 6234884764599148898, guid: d5ee376e2aba2854f92a6107858448d0, type: 3}
   largePackagePrefab: {fileID: 2304941815281981483, guid: 55205ef49c4b01b4a914a10c86eb7f8e, type: 3}
+  clientsPrefabs:
+  - {fileID: 1782013961935689741, guid: 073f009302fc373439832d85b18ff9ca, type: 3}
+  - {fileID: 5401312646505792672, guid: f89dfcc1fc9808e41b53588a4ba64a6b, type: 3}
+  - {fileID: 302815718468095416, guid: b11d9bbb8d759814a82f22982062b5ae, type: 3}
+  - {fileID: 5401312646505792672, guid: 29055ef1259632940aa07b75c6a803d9, type: 3}
+  - {fileID: 5401312646505792672, guid: f8e0f46f472958944a5a8c6e473b3fae, type: 3}
+  - {fileID: 5401312646505792672, guid: ee95d36617dc0184eb60052c0bad4581, type: 3}
+  - {fileID: 5401312646505792672, guid: 2dd4a41e3b57e104ab2177ec3e690687, type: 3}

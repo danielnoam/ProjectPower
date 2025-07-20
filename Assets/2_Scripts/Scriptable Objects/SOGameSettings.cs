@@ -58,6 +58,7 @@ public class SOGameSettings : ScriptableObject
     [SerializeField] private NumberdPackage smallPackagePrefab;
     [SerializeField] private NumberdPackage mediumPackagePrefab;
     [SerializeField] private NumberdPackage largePackagePrefab;
+    [SerializeField] private GameObject[] clientsPrefabs;
     
     
     public int MinPackageNumber => packageNumbersRange.minValue;
@@ -112,5 +113,16 @@ public class SOGameSettings : ScriptableObject
         return (key, value);
     }
     
+    
+    public GameObject GetRandomClientPrefab()
+    {
+        if (clientsPrefabs == null || clientsPrefabs.Length == 0)
+        {
+            return null;
+        }
+        
+        int randomIndex = Random.Range(0, clientsPrefabs.Length);
+        return clientsPrefabs[randomIndex];
+    }
 
 }

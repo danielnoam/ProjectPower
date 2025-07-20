@@ -9,10 +9,11 @@ public class OrderCounter : MonoBehaviour
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
     [SerializeField] private DeliveryArea deliveryArea;
-
+    [SerializeField] private Transform clientHolder;
 
     private Coroutine _startOrderCoroutine;
     private Order _currentOrder;
+    private GameObject _currentClient;
     
 
     public event Action<Order> OnOrderStartedEvent;
@@ -78,6 +79,11 @@ public class OrderCounter : MonoBehaviour
     {
         yield return new WaitForSeconds(time);
         _currentOrder = new Order(gameSettings, GameManager.Instance?.GameDifficulty ?? Difficulty.Easy);
+        if (_currentClient) 
+        {
+            Destroy(_currentClient);
+        }
+        _currentClient = Instantiate(gameSettings.GetRandomClientPrefab(), clientHolder);
         OnOrderStartedEvent?.Invoke(_currentOrder);
     }
     
