@@ -117,6 +117,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         var force = throwForceRange.Lerp(_throwInputHoldTime / throwHeldRange.maxValue);
         _heldObject?.Throw(playerCamera.GetAimDirection(), force);
+        _heldObject = null;
     }
 
     private void UpdateHeldInputTime()

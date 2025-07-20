@@ -79,6 +79,7 @@ public class Interactable : MonoBehaviour
     
     public void Interact(PlayerInteraction interactor)
     {
+
         if (!canInteract) return;
         
         interactionSfx?.Play(audioSource);

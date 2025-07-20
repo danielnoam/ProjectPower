@@ -1,39 +1,24 @@
 ﻿
-using System;
-using UnityEngine;
+using System.Collections.Generic;
 
 public class Order
 {
-    public int order;
+    public int targetNumber;
     public float timeLeft;
     
     
     public Order(SOGameSettings gameSettings, Difficulty difficulty)
     {
-        (int key, float value) orderCombinations;
-        switch (difficulty)
-        {
-            case Difficulty.Easy:
-                 orderCombinations = gameSettings.GetEasyOrderCombination();
-                break;
-            case Difficulty.Medium:
-                orderCombinations = gameSettings.GetHardOrderCombination();
-                break;
-            case Difficulty.Hard:
-                orderCombinations = gameSettings.GetHardOrderCombination();
-                break;
-            default:
-                 orderCombinations = gameSettings.GetEasyOrderCombination();
-                break;
-        }
-
-        order = orderCombinations.key;
+        Dictionary<PowerMachine, int> availablePowerMachines = GameManager.Instance.PowerMachines;
+        var orderCombinations = gameSettings.GetOrderNumber(availablePowerMachines, difficulty);
+        
+        targetNumber = orderCombinations.key;
         timeLeft = orderCombinations.value;;
     }
     
     public bool IsOrderCompleted(NumberdPackage package)
     {
-        return package.PackageNumber == order && timeLeft > 0;
+        return package.Number == targetNumber && timeLeft > 0;
     }
 
 }

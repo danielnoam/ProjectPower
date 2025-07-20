@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smallPackageMaxNumber: 500
   mediumPackageMaxNumber: 1000
-  maxPackagesInGame: 80
+  maxPackagesInGame: 25
   packageNumbersRange:
     minValue: 2
     maxValue: 9
@@ -23,58 +23,9 @@ MonoBehaviour:
   timeBetweenOrders:
     minValue: 5
     maxValue: 10
-  easyOrderCombinations:
-    _serializedList:
-    - Key: 4
-      Value: 20
-    - Key: 9
-      Value: 20
-    - Key: 16
-      Value: 20
-    - Key: 25
-      Value: 25
-    - Key: 36
-      Value: 25
-    - Key: 49
-      Value: 25
-    - Key: 64
-      Value: 25
-    - Key: 81
-      Value: 30
-    - Key: 8
-      Value: 20
-    - Key: 27
-      Value: 25
-  hardOrderCombinations:
-    _serializedList:
-    - Key: 4
-      Value: 15
-    - Key: 9
-      Value: 15
-    - Key: 16
-      Value: 20
-    - Key: 25
-      Value: 20
-    - Key: 36
-      Value: 20
-    - Key: 49
-      Value: 20
-    - Key: 64
-      Value: 20
-    - Key: 81
-      Value: 20
-    - Key: 8
-      Value: 15
-    - Key: 27
-      Value: 20
-    - Key: 125
-      Value: 30
-    - Key: 216
-      Value: 30
-    - Key: 343
-      Value: 30
-    - Key: 512
-      Value: 30
+  easyOrderCombinations: {fileID: 11400000, guid: 8304e2c1fd127f44d9b6cd9357bdce44, type: 2}
+  mediumOrderCombinations: {fileID: 11400000, guid: f0dd1731b1a98284baf682a44c63de46, type: 2}
+  hardOrderCombinations: {fileID: 11400000, guid: 865972ca443ad3f40b2f47e961a40cdb, type: 2}
   outlineWidth: 10
   outlineColor: {r: 0.3921569, g: 0.5843138, b: 0.9294118, a: 1}
   outlineMode: 0

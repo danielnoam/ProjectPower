@@ -13,6 +13,7 @@ public class PickableObject : MonoBehaviour
 
     [Header("Pickable Object Settings")]
     [SerializeField, Min(1)] private float objectWeight = 1f;
+    [SerializeField] private float heldFollowForce = 15f;
     [SerializeField] protected Rigidbody rigidBody;
     [SerializeField] protected Interactable interactable;
     [SerializeField] protected AudioSource audioSource;
@@ -22,6 +23,7 @@ public class PickableObject : MonoBehaviour
     private Transform _holdPosition;
     
     public float ObjectWeight => objectWeight;
+    
     private void OnValidate()
     {
         if (!rigidBody) rigidBody = this.GetOrAddComponent<Rigidbody>();
@@ -39,6 +41,24 @@ public class PickableObject : MonoBehaviour
         interactable.OnInteract -= OnInteract;
     }   
     
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.relativeVelocity.magnitude > 0.3f)
+        {
+            collisionSfx?.Play(audioSource);
+        }
+    }
+    
+
+    private void FixedUpdate()
+    {
+        if (_isBeingHeld && _holdPosition)
+        {
+            var direction = _holdPosition.position - rigidBody.position;
+            rigidBody.linearVelocity = direction * heldFollowForce;
+        }
+    }
+    
     private void OnInteract(PlayerInteraction interactor)
     {
         if (!rigidBody || !interactor) return;
@@ -49,23 +69,13 @@ public class PickableObject : MonoBehaviour
         }
 
     }
-
-    private void FixedUpdate()
-    {
-        if (_isBeingHeld && _holdPosition)
-        {
-            var direction = _holdPosition.position - rigidBody.position;
-            rigidBody.AddForce(direction * 15f, ForceMode.Force);
-        }
-
-    }
     
     private void PickUp(PlayerInteraction interactor)
     {
         if (!rigidBody || _isBeingHeld) return;
 
         interactable?.SetCanInteract(false);
-        rigidBody.useGravity = false;
+        rigidBody.useGravity = true;
         _isBeingHeld = true;
         _holdPosition = interactor.HoldPosition;
         interactor.HeldObject = this;
@@ -91,13 +101,7 @@ public class PickableObject : MonoBehaviour
         rigidBody.AddForce(direction * force, ForceMode.Impulse);
     }
     
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.relativeVelocity.magnitude > 0.3f)
-        {
-            collisionSfx?.Play(audioSource);
-        }
-    }
+
 
     
 

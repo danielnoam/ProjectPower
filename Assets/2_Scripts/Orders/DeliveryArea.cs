@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using DNExtensions;
 using UnityEngine;
@@ -39,7 +38,7 @@ public class DeliveryArea : MonoBehaviour
         }
     }
 
-    private void RemovePackage(NumberdPackage package)
+    public void RemovePackage(NumberdPackage package)
     {
         if (package && packagesInArea.Contains(package))
         {

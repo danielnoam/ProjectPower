@@ -17,7 +17,7 @@ public class OrderCounter : MonoBehaviour
     
 
     public event Action<Order> OnOrderStartedEvent;
-    public event Action<bool> OnOrderFinishedEvent;
+    public event Action<bool, NumberdPackage> OnOrderFinishedEvent;
     public event Action<Order> OnOrderTimeChangedEvent;
 
     private void OnEnable()
@@ -36,6 +36,7 @@ public class OrderCounter : MonoBehaviour
         UpdateOrderTimeLeft();
     }
     
+    
     private void OnPackageEnteredDeliveryArea(NumberdPackage package)
     {
         TryCompleteOrder(package);
@@ -47,11 +48,12 @@ public class OrderCounter : MonoBehaviour
         
         if (_currentOrder.IsOrderCompleted(package))
         {
-            OnOrderFinishedEvent?.Invoke(true);
+            OnOrderFinishedEvent?.Invoke(true, package);
 
             _currentOrder = null;
             StartNewOrder(gameSettings.TimeBetweenOrders.RandomValue);
-            Destroy(package.gameObject);
+            deliveryArea.RemovePackage(package);
+            package.IntoTheAbyss();
         }
     }
     
@@ -70,7 +72,7 @@ public class OrderCounter : MonoBehaviour
     
     private void OrderFailed()
     {
-        OnOrderFinishedEvent?.Invoke(false);
+        OnOrderFinishedEvent?.Invoke(false, null);
         _currentOrder = null;
         StartNewOrder(gameSettings.TimeBetweenOrders.RandomValue);
     }

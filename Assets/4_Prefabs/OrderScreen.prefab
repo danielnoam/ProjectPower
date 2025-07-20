@@ -822,8 +822,8 @@ MonoBehaviour:
   stateChangeDuration: 0.5
   lowTimeColor: {r: 1, g: 0, b: 0, a: 1}
   startOrderSfx: {fileID: 0}
-  orderFailedSfx: {fileID: 0}
-  orderCompletedSfx: {fileID: 0}
+  orderFailedSfx: {fileID: 11400000, guid: ab023a0b2f6a5574f92287a530369dec, type: 2}
+  orderCompletedSfx: {fileID: 11400000, guid: 5063d8510a9b6104abd5f0d84d80c32b, type: 2}
   gameSettings: {fileID: 11400000, guid: 074051d85b369d84881ac98c8e460b48, type: 2}
   audioSource: {fileID: 6768807118026032869}
   orderCounter: {fileID: 0}

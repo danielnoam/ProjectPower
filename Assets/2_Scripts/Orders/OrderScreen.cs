@@ -81,13 +81,13 @@ public class OrderScreen : MonoBehaviour
         
         timeLeft.color = _originalTimeColor;
         timeLeft.transform.localScale = _originalTimeScale;
-        packageNumber.text = $"{order.order}";
+        packageNumber.text = $"{order.targetNumber}";
         startOrderSfx?.Play(audioSource);
     }
     
     
     
-    private void OnOrderFinished(bool success)
+    private void OnOrderFinished(bool success, NumberdPackage package)
     {
         if (_stateChangeSequence.isAlive) _stateChangeSequence.Stop();
         _stateChangeSequence = Sequence.Create()

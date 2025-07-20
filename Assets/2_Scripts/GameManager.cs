@@ -4,6 +4,7 @@ using DNExtensions;
 using DNExtensions.VFXManager;
 using UnityEngine;
 
+[DefaultExecutionOrder(-1)]
 [DisallowMultipleComponent]
 [SelectionBase]
 public class GameManager : MonoBehaviour
@@ -24,6 +25,9 @@ public class GameManager : MonoBehaviour
     
     private readonly List<OrderCounter> _orderCounters = new List<OrderCounter>();
     private readonly List<PackageSpawner> _packageSpawners = new List<PackageSpawner>();
+    private readonly Dictionary<PowerMachine, int> _powerMachines = new Dictionary<PowerMachine, int>();
+    
+    public Dictionary<PowerMachine, int> PowerMachines => _powerMachines;
     public Difficulty GameDifficulty => gameDifficulty;
     public event Action OnGameStarted;
     public event Action OnGameFinished;
@@ -47,7 +51,7 @@ public class GameManager : MonoBehaviour
         VFXManager.Instance?.PlayVFX(introVFXSequence);
         FindOrderCounters();
         FindPackageSpawners();
-        StartGame();
+        FindPowerMachines();
     }
 
     private void OnEnable()
@@ -70,7 +74,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void OnOrderFinished(bool success)
+    private void OnOrderFinished(bool success, NumberdPackage package)
     {
         if (success) 
         {
@@ -145,8 +149,26 @@ public class GameManager : MonoBehaviour
         }
     }
     
+    private void FindPowerMachines()
+    {
+        _powerMachines.Clear();
 
-    private void StartGame()
+        var powerMachineObjects = FindObjectsByType<PowerMachine>(FindObjectsSortMode.None);
+        
+        foreach (var powerMachine in powerMachineObjects)
+        {
+            if (powerMachine)
+            {
+                if (!_powerMachines.ContainsKey(powerMachine))
+                {
+                    _powerMachines.Add(powerMachine, powerMachine.Power);
+                }
+            }
+        }
+    }
+    
+
+    public void StartGame()
     {
         if (_orderCounters.Count == 0) return;
         
@@ -160,7 +182,7 @@ public class GameManager : MonoBehaviour
             if (!firstOrderCounterStartedWithNoDelay)
             {
                 firstOrderCounterStartedWithNoDelay = true;
-                orderCounter.StartNewOrder(5);
+                orderCounter.StartNewOrder(2);
             }
             else
             {

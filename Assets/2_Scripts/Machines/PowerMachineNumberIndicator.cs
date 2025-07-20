@@ -12,7 +12,7 @@ public class PowerMachineNumberIndicator : MonoBehaviour
     [SerializeField] private Transform[] numbers;
     public void SetNumber(int machinePower)
     {
-        if (numbers == null || numbers.Length == 0 || numbers.Length < gameSettings.MaxPackageNumber) return;
+        if (numbers == null || numbers.Length == 0 || numbers.Length < gameSettings.PackageNumbersRange.maxValue) return;
 
         for (int i = 0; i < numbers.Length; i++)
         {

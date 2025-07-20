@@ -1,12 +1,19 @@
+
 using System.Collections.Generic;
 using System.Linq;
-using AYellowpaper.SerializedCollections;
 using DNExtensions;
+using PrimeTween;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [CreateAssetMenu(fileName = "Game Settings", menuName = "Scriptable Objects/New Game Settings", order = 1)]
 public class SOGameSettings : ScriptableObject
 {
+    public SOGameSettings()
+    {
+        PrimeTweenConfig.warnEndValueEqualsCurrent = false;
+    }
+    
     [Header("Package Settings")]
     [SerializeField] private int smallPackageMaxNumber = 500;
     [SerializeField] private int mediumPackageMaxNumber = 1000;
@@ -18,36 +25,9 @@ public class SOGameSettings : ScriptableObject
     [SerializeField] private int ordersNeededToChangeDifficulty = 7;
     [SerializeField] private int ordersNeededToCompleteGame = 30;
     [SerializeField, MinMaxRange(1,10)] private RangedFloat timeBetweenOrders = new RangedFloat(5f, 10f);
-    [SerializedDictionary, SerializeField] private SerializedDictionary<int , float> easyOrderCombinations = new SerializedDictionary<int, float>
-    {
-        {4, 20},
-        {9, 20},
-        {16, 20},
-        {25, 20},
-        {36, 20},
-        {49, 20},
-        {8, 20},
-        {27, 20},
-
-    };
-    [SerializedDictionary, SerializeField] private SerializedDictionary<int , float> hardOrderCombinations = new SerializedDictionary<int, float>
-    {
-        {4, 15},
-        {9, 20},
-        {16, 20},
-        {25, 20},
-        {36, 20},
-        {49, 20},
-        {64, 20},
-        {81, 20},
-        {8, 15},
-        {27, 20},
-        {125, 30},
-        {216, 30},
-        {343, 30},
-        {512, 30},
-    };
-    
+    [SerializeField] private SOOrderCombinations easyOrderCombinations;
+    [SerializeField] private SOOrderCombinations mediumOrderCombinations;
+    [SerializeField] private SOOrderCombinations hardOrderCombinations;
     
     [Header("Interaction Settings")]
     [SerializeField, Range(0,10)] private float outlineWidth = 5f;
@@ -61,10 +41,9 @@ public class SOGameSettings : ScriptableObject
     [SerializeField] private GameObject[] clientsPrefabs;
     
     
-    public int MinPackageNumber => packageNumbersRange.minValue;
-    public int MaxPackageNumber => packageNumbersRange.maxValue;
     public int MaxPackagesInGame => maxPackagesInGame;
     public RangedFloat TimeBetweenOrders => timeBetweenOrders;
+    public RangedInt PackageNumbersRange => packageNumbersRange;
     public int OrdersNeededToChangeDifficulty => ordersNeededToChangeDifficulty;
     public int OrdersNeededToCompleteGame => ordersNeededToCompleteGame;
     public float OutlineWidth => outlineWidth;
@@ -88,30 +67,6 @@ public class SOGameSettings : ScriptableObject
             return largePackagePrefab;
         }
     }
-
-    public int GetRandomPackageNumber()
-    {
-        return packageNumbersRange.RandomValue;
-    }
-    
-
-    public (int key, float value) GetEasyOrderCombination()
-    {
-        var keys = easyOrderCombinations.Keys.ToList();
-        int randomIndex = Random.Range(0, keys.Count);
-        int key = keys[randomIndex];
-        float value = easyOrderCombinations[key];
-        return (key, value);
-    }
-    
-    public (int key, float value) GetHardOrderCombination()
-    {
-        var keys = hardOrderCombinations.Keys.ToList();
-        int randomIndex = Random.Range(0, keys.Count);
-        int key = keys[randomIndex];
-        float value = hardOrderCombinations[key];
-        return (key, value);
-    }
     
     
     public GameObject GetRandomClientPrefab()
@@ -124,5 +79,50 @@ public class SOGameSettings : ScriptableObject
         int randomIndex = Random.Range(0, clientsPrefabs.Length);
         return clientsPrefabs[randomIndex];
     }
+    
+
+    public (int key, float value) GetOrderNumber(Dictionary<PowerMachine, int> availablePowerMachines, Difficulty difficulty)
+    {
+        var orderCombinations = easyOrderCombinations;
+        switch (difficulty)
+        {
+            case Difficulty.Medium:
+                orderCombinations = mediumOrderCombinations;
+                break;
+            case Difficulty.Hard:
+                orderCombinations = hardOrderCombinations;
+                break;
+        }
+        
+        var validCombinations = orderCombinations.GetCombinations().Where(kvp => CanAchieveWithAvailableMachines(kvp.Key, availablePowerMachines)).ToList();
+        if (validCombinations.Count == 0)
+        {
+            var keys = orderCombinations.GetCombinations().Keys.ToList();
+            int randomIndex = Random.Range(0, keys.Count);
+            int key = keys[randomIndex];
+            float value = orderCombinations.GetCombinations()[key];
+            return (key, value);
+        }
+        
+        int validRandomIndex = Random.Range(0, validCombinations.Count);
+        var selectedCombination = validCombinations[validRandomIndex];
+        return (selectedCombination.Key, selectedCombination.Value);
+    }
+    
+    private bool CanAchieveWithAvailableMachines(int targetNumber, Dictionary<PowerMachine, int> availablePowerMachines)
+    {
+        foreach (var machine in availablePowerMachines.Keys)
+        {
+            if (machine.CanProduceNumber(targetNumber))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    
+    
+
 
 }

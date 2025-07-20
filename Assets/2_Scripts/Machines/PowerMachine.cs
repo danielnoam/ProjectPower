@@ -13,7 +13,7 @@ using UnityEngine.UI;
 public class PowerMachine : MonoBehaviour
 {
     [Header("Power Machine Settings")] 
-    [SerializeField, Range(2,9)] private int machinePower = 2;
+    [SerializeField, Range(2,9)] private int power = 2;
     [SerializeField, Min(0.5f)] private float machineDuration = 5f;
     [SerializeField, Min(0.1f)] private float packageCheckRadius = 5f;
     [SerializeField] private LayerMask layerMask;
@@ -23,9 +23,6 @@ public class PowerMachine : MonoBehaviour
     [SerializeField, MinMaxRange(0.1f,0.5f)] private RangedFloat timeBetweenScales = new RangedFloat(0.1f, 0.5f);
     [SerializeField] private float scaleTransitionDuration = 0.75f;
     [SerializeField] private float scaleReturnDuration = 0.5f;
-    
-    [Header("Processing Bar")]
-
     
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
@@ -53,6 +50,12 @@ public class PowerMachine : MonoBehaviour
 
 
 
+    public int Power => power;
+    public event Action<NumberdPackage> OnPackageProcessed;
+    public event Action<NumberdPackage> OnPackageSpawned; 
+    
+    
+
     private void OnValidate()
     {
         if (powerNumbers == null || powerNumbers.Length == 0)
@@ -63,7 +66,7 @@ public class PowerMachine : MonoBehaviour
         {
             if (indicator)
             {
-                indicator.SetNumber(machinePower);
+                indicator.SetNumber(power);
             }
         }
     }
@@ -109,10 +112,11 @@ public class PowerMachine : MonoBehaviour
         if (_isProcessing) return;
 
         processedPackageGfx.gameObject.SetActive(true);
-        _processedOutputNum = PowerInt(package.PackageNumber, machinePower);
+        _processedOutputNum = PowerInt(package.Number, power);
         if (_processCoroutine != null) StopCoroutine(_processCoroutine);
         _processCoroutine = StartCoroutine(Process());
-        package.StartedProcessing();
+        package.IntoTheAbyss();
+        OnPackageProcessed?.Invoke(package);
     }
     
     private IEnumerator Process()
@@ -187,6 +191,7 @@ public class PowerMachine : MonoBehaviour
             {
                 _isProcessing = false;
                 _processTime = 0f;
+                processingSfx?.Stop(audioSource);
                 finishedProcessingSfx?.Play(audioSource);
                 processedPackageGfx.gameObject.SetActive(false);
 
@@ -194,13 +199,22 @@ public class PowerMachine : MonoBehaviour
                 var newPackage = Instantiate(packagePrefab, outputPosition.position, Quaternion.identity);
                 newPackage.SetNumber(_processedOutputNum);
                 newPackage.Push(outputPosition.forward, 5f);
+                OnPackageSpawned?.Invoke(newPackage);
             })
             .Group(Tween.Scale(machineGfx, _originalScale, scaleReturnDuration, Ease.OutElastic));
         
         if (_processBarSequence.isAlive) _processBarSequence.Stop();
         _processBarSequence = Sequence.Create()
-            .Group(Tween.Alpha(processingBarCanvasGroup, 0f, scaleReturnDuration +0.5f, Ease.InOutSine));
+            .Group(Tween.Alpha(processingBarCanvasGroup, 0f, scaleReturnDuration + 0.5f, Ease.InOutSine));
         
+    }
+    
+    public bool CanProduceNumber(int targetNumber)
+    {
+        double root = Math.Pow(targetNumber, 1.0 / power);
+        int intRoot = Mathf.RoundToInt((float)root);
+        
+        return Mathf.Approximately(Mathf.Pow(intRoot, power), targetNumber);
     }
     
     private int PowerInt(int baseValue, int exponent)

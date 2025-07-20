@@ -16,11 +16,14 @@ public class PackageSpawner : MonoBehaviour
     [SerializeField] private Transform packagesHolder;
     
     private readonly List<NumberdPackage> _packagesInGame = new List<NumberdPackage>();
+    private readonly List<PowerMachine> _powerMachines = new List<PowerMachine>();
+    private readonly List<OrderCounter> _orderCounters = new List<OrderCounter>();
     private Coroutine _spawnCoroutine;
 
-    private void Awake()
+    private void Start()
     {
         FindPackagesInGame();
+        FindPowerMachines();
     }
 
     private void OnEnable()
@@ -59,6 +62,96 @@ public class PackageSpawner : MonoBehaviour
             }
         }
     }
+    
+    private void FindPowerMachines()
+    {
+        _powerMachines.Clear();
+        PowerMachine[] allPowerMachines = FindObjectsByType<PowerMachine>(FindObjectsSortMode.None);
+        foreach (var powerMachine in allPowerMachines)
+        {
+            if (powerMachine && !_powerMachines.Contains(powerMachine))
+            {
+                _powerMachines.Add(powerMachine);
+                powerMachine.OnPackageProcessed += OnPackageProcessed;
+                powerMachine.OnPackageSpawned += OnPackageSpawned;
+            }
+        }
+    }
+    
+    private void FindOrderCounters()
+    {
+        _orderCounters.Clear();
+        OrderCounter[] allOrderCounters = FindObjectsByType<OrderCounter>(FindObjectsSortMode.None);
+        foreach (var orderCounter in allOrderCounters)
+        {
+            if (orderCounter && !_orderCounters.Contains(orderCounter))
+            {
+                _orderCounters.Add(orderCounter);
+                orderCounter.OnOrderFinishedEvent += OnOrderFinished;
+                orderCounter.OnOrderStartedEvent += OnOrderStarted;
+            }
+        }
+    }
+
+    private void OnOrderStarted(Order order)
+    {
+        if (order == null) return;
+    
+        bool canFulfillOrder = false;
+
+        foreach (var package in _packagesInGame)
+        {
+            if (package && package.Number == order.targetNumber)
+            {
+                canFulfillOrder = true;
+                break;
+            }
+        }
+
+        if (!canFulfillOrder)
+        {
+            var availableMachines = GameManager.Instance.PowerMachines;
+        
+            foreach (var machine in availableMachines.Keys)
+            {
+                if (machine.CanProduceNumber(order.targetNumber))
+                {
+                    float root = Mathf.Pow(order.targetNumber, 1f / machine.Power);
+                    int rootNumber = Mathf.RoundToInt(root);
+                
+                    SpawnPackage(rootNumber);
+                    break;
+                }
+            }
+        }
+    }
+    
+    private void OnOrderFinished(bool success, NumberdPackage package)
+    {
+        if (success &&package && _packagesInGame.Contains(package))
+        {
+            _packagesInGame.Remove(package);
+            Destroy(package.gameObject);
+        }
+    }
+
+    private void OnPackageProcessed(NumberdPackage package)
+    {
+        if (package && _packagesInGame.Contains(package))
+        {
+            _packagesInGame.Remove(package);
+            Destroy(package.gameObject);
+        }
+        
+    }
+    
+    private void OnPackageSpawned(NumberdPackage package)
+    {
+        if (package && !_packagesInGame.Contains(package))
+        {
+            _packagesInGame.Add(package);
+        }
+    }
 
     private IEnumerator SpawnPackages(int count, float timeBetweenSpawns = 0.5f, float delayBeforeStart = 0f)
     {
@@ -72,7 +165,7 @@ public class PackageSpawner : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             if (_packagesInGame.Count >= gameSettings.MaxPackagesInGame) yield break;
-            SpawnPackage(gameSettings.GetRandomPackageNumber());
+            SpawnPackage(gameSettings.PackageNumbersRange.RandomValue);
             yield return new WaitForSeconds(timeBetweenSpawns);
         }
     }
@@ -90,9 +183,18 @@ public class PackageSpawner : MonoBehaviour
     [Button]
     private void SpawnPackage(int packageNumber = 2)
     {
-        if (!packageSpawnPosition || !gameSettings || _packagesInGame.Count >= gameSettings.MaxPackagesInGame) return;
+        if (!packageSpawnPosition || !gameSettings) return;
+
+        if (_packagesInGame.Count >= gameSettings.MaxPackagesInGame)
+        {
+            var oldestPackage = _packagesInGame[0];
+            _packagesInGame.RemoveAt(0);
+            oldestPackage.IntoTheAbyss();
+        }
         
-        NumberdPackage package = Instantiate(gameSettings.GetPackagePrefabByNumber(packageNumber), packageSpawnPosition.position, Quaternion.identity, packagesHolder);
+        var randomRotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
+        var randomPositionOffset = new Vector3(UnityEngine.Random.Range(-0.5f, 0.5f), 0f, UnityEngine.Random.Range(-0.5f, 0.5f));
+        NumberdPackage package = Instantiate(gameSettings.GetPackagePrefabByNumber(packageNumber), packageSpawnPosition.position + randomPositionOffset, randomRotation, packagesHolder);
         package.SetNumber(packageNumber);
         _packagesInGame.Add(package);
     }
