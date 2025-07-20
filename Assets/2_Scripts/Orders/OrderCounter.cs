@@ -3,11 +3,13 @@ using System.Collections;
 using DNExtensions;
 using UnityEngine;
 
+[DisallowMultipleComponent]
 public class OrderCounter : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
     [SerializeField] private DeliveryArea deliveryArea;
+
 
     private Coroutine _startOrderCoroutine;
     private Order _currentOrder;
@@ -45,8 +47,9 @@ public class OrderCounter : MonoBehaviour
         if (_currentOrder.IsOrderCompleted(package))
         {
             OnOrderFinishedEvent?.Invoke(true);
+
             _currentOrder = null;
-            StartNewOrder(gameSettings.GetRandomTimeBetweenOrders());
+            StartNewOrder(gameSettings.TimeBetweenOrders.RandomValue);
         }
     }
     
@@ -67,7 +70,7 @@ public class OrderCounter : MonoBehaviour
     {
         OnOrderFinishedEvent?.Invoke(false);
         _currentOrder = null;
-        StartNewOrder(gameSettings.GetRandomTimeBetweenOrders());
+        StartNewOrder(gameSettings.TimeBetweenOrders.RandomValue);
     }
     
     private IEnumerator StartOrderIn(float time)

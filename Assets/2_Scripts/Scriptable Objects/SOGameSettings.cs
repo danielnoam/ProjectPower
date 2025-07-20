@@ -63,6 +63,7 @@ public class SOGameSettings : ScriptableObject
     public int MinPackageNumber => packageNumbersRange.minValue;
     public int MaxPackageNumber => packageNumbersRange.maxValue;
     public int MaxPackagesInGame => maxPackagesInGame;
+    public RangedFloat TimeBetweenOrders => timeBetweenOrders;
     public int OrdersNeededToChangeDifficulty => ordersNeededToChangeDifficulty;
     public int OrdersNeededToCompleteGame => ordersNeededToCompleteGame;
     public float OutlineWidth => outlineWidth;
@@ -111,9 +112,5 @@ public class SOGameSettings : ScriptableObject
         return (key, value);
     }
     
-    public float GetRandomTimeBetweenOrders()
-    {
-        return timeBetweenOrders.RandomValue;
-    }
 
 }

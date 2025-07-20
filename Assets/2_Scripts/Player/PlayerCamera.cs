@@ -32,6 +32,8 @@ public class PlayerCamera : MonoBehaviour
     
     private void Awake()
     {
+        _currentPanAngle = transform.eulerAngles.y;
+        _currentTiltAngle = playerHead.localEulerAngles.x;
         _targetPanAngle = _currentPanAngle;
         _targetTiltAngle = _currentTiltAngle;
         SetupFov();

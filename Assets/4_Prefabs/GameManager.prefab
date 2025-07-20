@@ -44,6 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef2f9a0db5b113b4aa1ff3d1452353b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  completedOrdersCount: 0
-  failedOrdersCount: 0
+  gameDifficulty: 0
+  currentCompletedOrders: 0
+  totalCompletedOrders: 0
+  totalFailedOrders: 0
   gameSettings: {fileID: 11400000, guid: 074051d85b369d84881ac98c8e460b48, type: 2}
+  introVFXSequence: {fileID: 11400000, guid: cefffb0b3d13e6a4888cc82ba45f55c5, type: 2}

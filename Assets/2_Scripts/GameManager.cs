@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DNExtensions;
+using DNExtensions.VFXManager;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -9,18 +10,23 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     
+    [Header("References")]
+    [SerializeField] private SOGameSettings gameSettings;
+    [SerializeField] private SOVFEffectsSequence introVFXSequence;
+
+    
+    [Header("Current Game State")]
     [SerializeField, ReadOnly] private Difficulty gameDifficulty;
     [SerializeField, ReadOnly] private int currentCompletedOrders;
     [SerializeField, ReadOnly] private int totalCompletedOrders;
     [SerializeField, ReadOnly] private int totalFailedOrders;
     
-    [Header("References")]
-    [SerializeField] private SOGameSettings gameSettings;
+    
     private readonly List<OrderCounter> _orderCounters = new List<OrderCounter>();
-    
-    
+    private readonly List<PackageSpawner> _packageSpawners = new List<PackageSpawner>();
     public Difficulty GameDifficulty => gameDifficulty;
-
+    public event Action OnGameStarted;
+    public event Action OnGameFinished;
     
     
     private void Awake()
@@ -28,17 +34,19 @@ public class GameManager : MonoBehaviour
         if (!Instance || Instance == this)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
+        
     }
 
     private void Start()
     {
+        VFXManager.Instance?.PlayVFX(introVFXSequence);
         FindOrderCounters();
+        FindPackageSpawners();
         StartGame();
     }
 
@@ -103,6 +111,7 @@ public class GameManager : MonoBehaviour
             orderCounter.OnOrderFinishedEvent -= OnOrderFinished;
             orderCounter.StopTakingOrders();
         }
+        OnGameFinished?.Invoke();
     }
 
     private void FindOrderCounters()
@@ -117,6 +126,21 @@ public class GameManager : MonoBehaviour
             {
                 _orderCounters.Add(orderCounter);
                 orderCounter.OnOrderFinishedEvent += OnOrderFinished;
+            }
+        }
+    }
+    
+    private void FindPackageSpawners()
+    {
+        _packageSpawners.Clear();
+
+        var packageSpawnerObjects = FindObjectsByType<PackageSpawner>(FindObjectsSortMode.None);
+        
+        foreach (var packageSpawner in packageSpawnerObjects)
+        {
+            if (packageSpawner)
+            {
+                _packageSpawners.Add(packageSpawner);
             }
         }
     }
@@ -136,12 +160,13 @@ public class GameManager : MonoBehaviour
             if (!firstOrderCounterStartedWithNoDelay)
             {
                 firstOrderCounterStartedWithNoDelay = true;
-                orderCounter.StartNewOrder();
+                orderCounter.StartNewOrder(5);
             }
             else
             {
-                orderCounter.StartNewOrder(gameSettings.GetRandomTimeBetweenOrders());
+                orderCounter.StartNewOrder(gameSettings.TimeBetweenOrders.maxValue);
             }
         }
+        OnGameStarted?.Invoke();
     }
 }

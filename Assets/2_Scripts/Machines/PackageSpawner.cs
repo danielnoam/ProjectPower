@@ -17,17 +17,31 @@ public class PackageSpawner : MonoBehaviour
     
     private readonly List<NumberdPackage> _packagesInGame = new List<NumberdPackage>();
     private Coroutine _spawnCoroutine;
-    
-    private void Start()
+
+    private void Awake()
     {
         FindPackagesInGame();
-        
+    }
+
+    private void OnEnable()
+    {
+        GameManager.Instance.OnGameStarted += OnGameStarted;
+    }
+    
+    private void OnDisable()
+    {
+        GameManager.Instance.OnGameStarted -= OnGameStarted;
+    }
+    
+    
+    private void OnGameStarted()
+    {
         if (_packagesInGame.Count < initialPackageCount)
         {
             int packagesToSpawn = initialPackageCount - _packagesInGame.Count;
             if (packagesToSpawn > 0)
             {
-                SpawnPackagesBatch(packagesToSpawn);
+                SpawnPackagesBatch(packagesToSpawn, 0.5f, 3f);
             }
         }
     }
@@ -46,26 +60,31 @@ public class PackageSpawner : MonoBehaviour
         }
     }
 
-    private IEnumerator SpawnPackages(int count, float delay = 0.5f)
+    private IEnumerator SpawnPackages(int count, float timeBetweenSpawns = 0.5f, float delayBeforeStart = 0f)
     {
         if (!packageSpawnPosition || !gameSettings) yield break;
 
+        if (delayBeforeStart > 0f)
+        {
+            yield return new WaitForSeconds(delayBeforeStart);
+        }
+        
         for (int i = 0; i < count; i++)
         {
             if (_packagesInGame.Count >= gameSettings.MaxPackagesInGame) yield break;
             SpawnPackage(gameSettings.GetRandomPackageNumber());
-            yield return new WaitForSeconds(delay);
+            yield return new WaitForSeconds(timeBetweenSpawns);
         }
     }
 
     [Button]
-    public void SpawnPackagesBatch(int count = 3, float delay = 0.5f)
+    public void SpawnPackagesBatch(int count = 3, float timeBetweenSpawns = 0.5f, float delayBeforeStart = 0f)
     {
         if (_spawnCoroutine != null) 
         {
             StopCoroutine(_spawnCoroutine);
         }
-        _spawnCoroutine = StartCoroutine(SpawnPackages(count, delay));
+        _spawnCoroutine = StartCoroutine(SpawnPackages(count, timeBetweenSpawns, delayBeforeStart));
     }
     
     [Button]
