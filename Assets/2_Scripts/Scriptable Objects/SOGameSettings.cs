@@ -15,8 +15,22 @@ public class SOGameSettings : ScriptableObject
     
     
     [Header("Order Settings")]
+    [SerializeField] private int ordersNeededToChangeDifficulty = 7;
+    [SerializeField] private int ordersNeededToCompleteGame = 30;
     [SerializeField, MinMaxRange(1,10)] private RangedFloat timeBetweenOrders = new RangedFloat(5f, 10f);
     [SerializedDictionary, SerializeField] private SerializedDictionary<int , float> easyOrderCombinations = new SerializedDictionary<int, float>
+    {
+        {4, 20},
+        {9, 20},
+        {16, 20},
+        {25, 20},
+        {36, 20},
+        {49, 20},
+        {8, 20},
+        {27, 20},
+
+    };
+    [SerializedDictionary, SerializeField] private SerializedDictionary<int , float> hardOrderCombinations = new SerializedDictionary<int, float>
     {
         {4, 15},
         {9, 20},
@@ -34,6 +48,7 @@ public class SOGameSettings : ScriptableObject
         {512, 30},
     };
     
+    
     [Header("Interaction Settings")]
     [SerializeField, Range(0,10)] private float outlineWidth = 5f;
     [SerializeField] private Color outlineColor = Color.cornflowerBlue;
@@ -48,6 +63,8 @@ public class SOGameSettings : ScriptableObject
     public int MinPackageNumber => packageNumbersRange.minValue;
     public int MaxPackageNumber => packageNumbersRange.maxValue;
     public int MaxPackagesInGame => maxPackagesInGame;
+    public int OrdersNeededToChangeDifficulty => ordersNeededToChangeDifficulty;
+    public int OrdersNeededToCompleteGame => ordersNeededToCompleteGame;
     public float OutlineWidth => outlineWidth;
     public Color OutlineColor => outlineColor;
     public Outline.Mode OutlineMode => outlineMode;
@@ -82,6 +99,15 @@ public class SOGameSettings : ScriptableObject
         int randomIndex = Random.Range(0, keys.Count);
         int key = keys[randomIndex];
         float value = easyOrderCombinations[key];
+        return (key, value);
+    }
+    
+    public (int key, float value) GetHardOrderCombination()
+    {
+        var keys = hardOrderCombinations.Keys.ToList();
+        int randomIndex = Random.Range(0, keys.Count);
+        int key = keys[randomIndex];
+        float value = hardOrderCombinations[key];
         return (key, value);
     }
     
