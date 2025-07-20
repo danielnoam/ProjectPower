@@ -2666,34 +2666,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1334027802}
     m_Modifications:
-    - target: {fileID: 42792856184678589, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: machinePower
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 723278520819215466, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2172492232707347851, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2484440518599585698, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3594389033777100912, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4041611260465476271, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4080908191819715715, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4176719295770689938, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2
@@ -2734,41 +2706,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4775129571068700698, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5193467916081962710, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5803876543810224092, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6128559247352652501, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7070119705753909757, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7185424099621547921, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
       propertyPath: m_Name
       value: Power Machine
-      objectReference: {fileID: 0}
-    - target: {fileID: 7314724371243248393, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8625910903545979014, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8918408990879215776, guid: d2a42bdeec668af4a9d725a2f8cf838f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

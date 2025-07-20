@@ -6,6 +6,7 @@ using PrimeTween;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 [SelectionBase]
 [RequireComponent(typeof(AudioSource))]
@@ -20,8 +21,11 @@ public class PowerMachine : MonoBehaviour
     [Header("Processing Animation")]
     [SerializeField, MinMaxRange(1,2)] private RangedFloat scaleRange = new RangedFloat(1, 1.5f);
     [SerializeField, MinMaxRange(0.1f,0.5f)] private RangedFloat timeBetweenScales = new RangedFloat(0.1f, 0.5f);
-    [SerializeField] private float scaleTransitionDuration = 1f;
+    [SerializeField] private float scaleTransitionDuration = 0.75f;
     [SerializeField] private float scaleReturnDuration = 0.5f;
+    
+    [Header("Processing Bar")]
+
     
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
@@ -30,6 +34,8 @@ public class PowerMachine : MonoBehaviour
     [SerializeField] private Transform packageCheckPosition;
     [SerializeField] private Transform outputPosition;
     [SerializeField] private Transform processedPackageGfx;
+    [SerializeField] private Image processingBar;
+    [SerializeField] private CanvasGroup processingBarCanvasGroup;
     [SerializeField] private SOAudioEvent processingSfx;
     [SerializeField] private SOAudioEvent finishedProcessingSfx;
     [SerializeField] private PowerMachineNumberIndicator[] powerNumbers;
@@ -42,6 +48,8 @@ public class PowerMachine : MonoBehaviour
     private Sequence _scaleReturnSequence;
     private Vector3 _originalScale;
     private Vector3 _targetScale;
+    private Sequence _processBarSequence;
+    private float _processingBarFullWidth;
 
 
 
@@ -65,6 +73,8 @@ public class PowerMachine : MonoBehaviour
     {
         _originalScale = machineGfx.localScale;
         _targetScale = _originalScale;
+        processingBarCanvasGroup.alpha = 0f;
+        _processingBarFullWidth = processingBar.rectTransform.sizeDelta.x;
     }
     
     private void Update()
@@ -112,7 +122,16 @@ public class PowerMachine : MonoBehaviour
         _isProcessing = true;
         if (_scaleReturnSequence.isAlive) _scaleReturnSequence.Stop();
         if (_scaleAnimationCoroutine != null) StopCoroutine(_scaleAnimationCoroutine);
+        if (_processBarSequence.isAlive) _processBarSequence.Stop();
         _scaleAnimationCoroutine = StartCoroutine(ScaleAnimation());
+        _processBarSequence = Sequence.Create()
+            .Group(Tween.Alpha(processingBarCanvasGroup, 1f, scaleTransitionDuration, Ease.InOutSine))
+            .Group(Tween.Custom(
+               startValue: 0, 
+               endValue: _processingBarFullWidth, 
+               duration: machineDuration, 
+               onValueChange: value => processingBar.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, value) ,
+               Ease.InOutSine));
     
         while (_processTime < machineDuration)
         {
@@ -177,6 +196,11 @@ public class PowerMachine : MonoBehaviour
                 newPackage.Push(outputPosition.forward, 5f);
             })
             .Group(Tween.Scale(machineGfx, _originalScale, scaleReturnDuration, Ease.OutElastic));
+        
+        if (_processBarSequence.isAlive) _processBarSequence.Stop();
+        _processBarSequence = Sequence.Create()
+            .Group(Tween.Alpha(processingBarCanvasGroup, 0f, scaleReturnDuration +0.5f, Ease.InOutSine));
+        
     }
     
     private int PowerInt(int baseValue, int exponent)

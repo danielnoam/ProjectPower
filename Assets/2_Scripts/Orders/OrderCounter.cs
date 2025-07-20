@@ -50,6 +50,7 @@ public class OrderCounter : MonoBehaviour
 
             _currentOrder = null;
             StartNewOrder(gameSettings.TimeBetweenOrders.RandomValue);
+            Destroy(package.gameObject);
         }
     }
     
