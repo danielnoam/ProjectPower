@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f091914f821aeddd7b3676db7383e3d7, type: 3}
+  m_Name: PackagePickup
+  m_EditorClassIdentifier: 
+  clips:
+  - {fileID: 8300000, guid: d5a13ca21946a594597a4057613179d2, type: 3}
+  - {fileID: 8300000, guid: 94f2ec9c10da9a4429dbea6fe4b3e601, type: 3}
+  - {fileID: 8300000, guid: 68e290e69fa8c8d46a4d8ef57158fc82, type: 3}
+  - {fileID: 8300000, guid: 3fce78dd88ef9f846aad0f1b7b01c6b4, type: 3}
+  - {fileID: 8300000, guid: 93564bb0a4e33b546ac35170c5549f67, type: 3}
+  mixerGroup: {fileID: 0}
+  volume:
+    minValue: 1
+    maxValue: 1
+  pitch:
+    minValue: 0.8
+    maxValue: 1.1
+  stereoPan: 0
+  spatialBlend: 1
+  reverbZoneMix: 1
+  bypassEffects: 0
+  bypassListenerEffects: 0
+  bypassReverbZones: 0
+  loop: 0
+  set3DSettings: 1
+  dopplerLevel: 1
+  spread: 0
+  rolloffMode: 0
+  minDistance: 1
+  maxDistance: 500
+  useObjectPooler: 0
+  oneShotPrefab: {fileID: 0}
