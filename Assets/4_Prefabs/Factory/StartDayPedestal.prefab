@@ -185,7 +185,7 @@ GameObject:
   - component: {fileID: 52162478548582334}
   - component: {fileID: 8656645128527179248}
   m_Layer: 0
-  m_Name: StartGamePedestal
+  m_Name: StartDayPedestal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

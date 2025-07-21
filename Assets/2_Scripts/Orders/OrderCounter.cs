@@ -8,7 +8,7 @@ public class OrderCounter : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
-    [SerializeField] private DeliveryArea deliveryArea;
+    [SerializeField] private OrderDeliveryArea orderDeliveryArea;
     [SerializeField] private Transform clientHolder;
 
     private Coroutine _startOrderCoroutine;
@@ -17,17 +17,19 @@ public class OrderCounter : MonoBehaviour
     
 
     public event Action<Order> OnOrderStartedEvent;
-    public event Action<bool, NumberdPackage> OnOrderFinishedEvent;
+    public event Action<bool, NumberdPackage, int> OnOrderFinishedEvent;
     public event Action<Order> OnOrderTimeChangedEvent;
+    public event Action OnStoppedTakingOrdersEvent;
+    
 
     private void OnEnable()
     {
-        deliveryArea.OnPackageEnteredArea += OnPackageEnteredDeliveryArea;
+        orderDeliveryArea.OnPackageEnteredArea += OnPackageEnteredOrderDeliveryArea;
     }
 
     private void OnDisable()
     {
-        deliveryArea.OnPackageEnteredArea -= OnPackageEnteredDeliveryArea;
+        orderDeliveryArea.OnPackageEnteredArea -= OnPackageEnteredOrderDeliveryArea;
     }
     
 
@@ -37,7 +39,7 @@ public class OrderCounter : MonoBehaviour
     }
     
     
-    private void OnPackageEnteredDeliveryArea(NumberdPackage package)
+    private void OnPackageEnteredOrderDeliveryArea(NumberdPackage package)
     {
         TryCompleteOrder(package);
     }
@@ -48,11 +50,11 @@ public class OrderCounter : MonoBehaviour
         
         if (_currentOrder.IsOrderCompleted(package))
         {
-            OnOrderFinishedEvent?.Invoke(true, package);
+            OnOrderFinishedEvent?.Invoke(true, package, _currentOrder.worth);
 
             _currentOrder = null;
             StartNewOrder(gameSettings.TimeBetweenOrders.RandomValue);
-            deliveryArea.RemovePackage(package);
+            orderDeliveryArea.RemovePackage(package);
             package.IntoTheAbyss();
         }
     }
@@ -65,17 +67,9 @@ public class OrderCounter : MonoBehaviour
         OnOrderTimeChangedEvent?.Invoke(_currentOrder);
         if (_currentOrder.timeLeft <= 0)
         {
-            _currentOrder.timeLeft = 0;
-            OrderFailed();
+            FailOrder();
         }
     }    
-    
-    private void OrderFailed()
-    {
-        OnOrderFinishedEvent?.Invoke(false, null);
-        _currentOrder = null;
-        StartNewOrder(gameSettings.TimeBetweenOrders.RandomValue);
-    }
     
     private IEnumerator StartOrderIn(float time)
     {
@@ -109,5 +103,28 @@ public class OrderCounter : MonoBehaviour
         }
 
         _currentOrder = null;
+        
+        if (_currentClient)
+        {
+            Destroy(_currentClient);
+            _currentClient = null;
+        }
+        
+        OnStoppedTakingOrdersEvent?.Invoke();
+    }
+    
+    [Button]
+    public void FailOrder()
+    {
+        if (_currentOrder == null) return;
+        
+        OnOrderFinishedEvent?.Invoke(false, null, 0);
+        _currentOrder = null;
+        if (_currentClient)
+        {
+            Destroy(_currentClient);
+            _currentClient = null;
+        }
+        StartNewOrder(gameSettings.TimeBetweenOrders.RandomValue);
     }
 }

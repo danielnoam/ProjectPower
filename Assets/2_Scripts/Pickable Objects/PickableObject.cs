@@ -55,7 +55,23 @@ public class PickableObject : MonoBehaviour
         if (_isBeingHeld && _holdPosition)
         {
             var direction = _holdPosition.position - rigidBody.position;
-            rigidBody.linearVelocity = direction * heldFollowForce;
+            rigidBody.linearVelocity = direction * (heldFollowForce * Time.fixedDeltaTime);
+
+            if (rigidBody.rotation != Quaternion.Euler(Vector3.zero))
+            {
+                Quaternion targetRotation = Quaternion.Euler(Vector3.zero);
+                Quaternion rotationDifference = targetRotation * Quaternion.Inverse(rigidBody.rotation);
+                rotationDifference.ToAngleAxis(out float angle, out Vector3 axis);
+                if (angle > 180f) angle -= 360f;
+                float angularSpeed = 5;
+                
+                Vector3 desiredAngularVelocity = axis * (angle * Mathf.Deg2Rad * angularSpeed);
+                rigidBody.angularVelocity = desiredAngularVelocity;
+            } 
+            else if (rigidBody.angularVelocity != Vector3.zero)
+            {
+                rigidBody.angularVelocity = Vector3.Lerp(rigidBody.angularVelocity, Vector3.zero, 1f * Time.fixedDeltaTime);
+            }
         }
     }
     

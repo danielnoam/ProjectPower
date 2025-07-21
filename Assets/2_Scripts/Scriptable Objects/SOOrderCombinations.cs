@@ -8,6 +8,8 @@ using UnityEngine;
 public class SOOrderCombinations : ScriptableObject
 {
 
+    [SerializeField,Min(1)] private int orderReward = 10;
+    [Tooltip("Dictionary of order combinations where key is the number of packages and value is the time in seconds to complete the order.")]
     [SerializedDictionary, SerializeField] private SerializedDictionary<int , float> orderCombinations = new SerializedDictionary<int, float>
     {
         {4, 20},
@@ -20,10 +22,22 @@ public class SOOrderCombinations : ScriptableObject
         {27, 20},
     };
 
+    public int OrderReward => orderReward;
     
     public Dictionary<int, float> GetCombinations()
     {
         return orderCombinations.ToDictionary(pair => pair.Key, pair => pair.Value);
     }
+
+    public (int, float) GeRandomOrder()
+    {
+        if (orderCombinations.Count == 0) return (0, 0);
+        
+        var randomIndex = Random.Range(0, orderCombinations.Count);
+        var randomPair = orderCombinations.ElementAt(randomIndex);
+        return (randomPair.Key, randomPair.Value);
+    }
+
+
 
 }

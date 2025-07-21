@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class PackageSpawner : MonoBehaviour
 {
+    [SerializeField, ReadOnly] private int packagesInGame;
 
     [Header("Spawner Settings")]
     [SerializeField, Min(0)] private int initialPackageCount = 5;
@@ -28,16 +29,16 @@ public class PackageSpawner : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.Instance.OnGameStarted += OnGameStarted;
+        GameManager.Instance.OnDayStarted += OnDayStarted;
     }
     
     private void OnDisable()
     {
-        GameManager.Instance.OnGameStarted -= OnGameStarted;
+        GameManager.Instance.OnDayStarted -= OnDayStarted;
     }
     
     
-    private void OnGameStarted()
+    private void OnDayStarted()
     {
         if (_packagesInGame.Count < initialPackageCount)
         {
@@ -59,6 +60,7 @@ public class PackageSpawner : MonoBehaviour
             if (package && !_packagesInGame.Contains(package))
             {
                 _packagesInGame.Add(package);
+                packagesInGame = _packagesInGame.Count;
             }
         }
     }
@@ -126,12 +128,12 @@ public class PackageSpawner : MonoBehaviour
         }
     }
     
-    private void OnOrderFinished(bool success, NumberdPackage package)
+    private void OnOrderFinished(bool success, NumberdPackage package, int orderWorth)
     {
         if (success &&package && _packagesInGame.Contains(package))
         {
             _packagesInGame.Remove(package);
-            Destroy(package.gameObject);
+            packagesInGame = _packagesInGame.Count;
         }
     }
 
@@ -140,7 +142,7 @@ public class PackageSpawner : MonoBehaviour
         if (package && _packagesInGame.Contains(package))
         {
             _packagesInGame.Remove(package);
-            Destroy(package.gameObject);
+            packagesInGame = _packagesInGame.Count;
         }
         
     }
@@ -150,6 +152,7 @@ public class PackageSpawner : MonoBehaviour
         if (package && !_packagesInGame.Contains(package))
         {
             _packagesInGame.Add(package);
+            packagesInGame = _packagesInGame.Count;
         }
     }
 
@@ -157,14 +160,27 @@ public class PackageSpawner : MonoBehaviour
     {
         if (!packageSpawnPosition || !gameSettings) yield break;
 
-        if (delayBeforeStart > 0f)
-        {
-            yield return new WaitForSeconds(delayBeforeStart);
-        }
+        if (delayBeforeStart > 0f) yield return new WaitForSeconds(delayBeforeStart);
         
+        int totalAfterSpawning = _packagesInGame.Count + count;
+        if (totalAfterSpawning > gameSettings.MaxPackagesInGame)
+        {
+            int excessCount = totalAfterSpawning - gameSettings.MaxPackagesInGame;
+        
+            for (int i = 0; i < excessCount; i++)
+            {
+                if (_packagesInGame.Count > 0)
+                {
+                    var oldestPackage = _packagesInGame[0];
+                    _packagesInGame.RemoveAt(0);
+                    packagesInGame = _packagesInGame.Count;
+                    oldestPackage.IntoTheAbyss();
+                }
+            }
+        }
+    
         for (int i = 0; i < count; i++)
         {
-            if (_packagesInGame.Count >= gameSettings.MaxPackagesInGame) yield break;
             SpawnPackage(gameSettings.PackageNumbersRange.RandomValue);
             yield return new WaitForSeconds(timeBetweenSpawns);
         }
@@ -189,6 +205,7 @@ public class PackageSpawner : MonoBehaviour
         {
             var oldestPackage = _packagesInGame[0];
             _packagesInGame.RemoveAt(0);
+            packagesInGame = _packagesInGame.Count;
             oldestPackage.IntoTheAbyss();
         }
         
@@ -197,6 +214,7 @@ public class PackageSpawner : MonoBehaviour
         NumberdPackage package = Instantiate(gameSettings.GetPackagePrefabByNumber(packageNumber), packageSpawnPosition.position + randomPositionOffset, randomRotation, packagesHolder);
         package.SetNumber(packageNumber);
         _packagesInGame.Add(package);
+        packagesInGame = _packagesInGame.Count;
     }
 
     private void OnDrawGizmos()

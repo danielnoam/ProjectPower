@@ -5,6 +5,7 @@ public class Order
 {
     public int targetNumber;
     public float timeLeft;
+    public int worth;
     
     
     public Order(SOGameSettings gameSettings, Difficulty difficulty)
@@ -12,8 +13,10 @@ public class Order
         Dictionary<PowerMachine, int> availablePowerMachines = GameManager.Instance.PowerMachines;
         var orderCombinations = gameSettings.GetOrderNumber(availablePowerMachines, difficulty);
         
+        worth = gameSettings.GetOrderWorth(difficulty);
         targetNumber = orderCombinations.key;
-        timeLeft = orderCombinations.value;;
+        timeLeft = orderCombinations.value;
+
     }
     
     public bool IsOrderCompleted(NumberdPackage package)

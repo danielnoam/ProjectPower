@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using DNExtensions;
 using UnityEngine;
 
-public class DeliveryArea : MonoBehaviour
+public class OrderDeliveryArea : MonoBehaviour
 {
     
     [Header("Delivery Area")]

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6156956402196942157}
   - component: {fileID: 4055341931534868458}
   m_Layer: 0
-  m_Name: DeliveryArea
+  m_Name: OrderDeliveryArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

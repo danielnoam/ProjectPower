@@ -233,11 +233,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectWeight: 7
+  heldFollowForce: 150
   rigidBody: {fileID: 1402751892165704463}
   interactable: {fileID: 7087478354744175922}
   audioSource: {fileID: 5558961000962217231}
   collisionSfx: {fileID: 11400000, guid: b9446af674053314c9279e6a5d76cd93, type: 2}
-  packageNumber: 2
+  number: 2
   packageLight: {fileID: 8745208379277029707}
   numberTexts:
   - {fileID: 4485284018079062957}

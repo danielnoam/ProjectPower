@@ -63,17 +63,25 @@ public class NumberdPackage : PickableObject
         {
             _lightSequence = Sequence.Create()
                 .Group(Tween.LightIntensity(packageLight, 0f, 0.5f, Ease.InOutSine))
-                .ChainCallback(() => packageLight.enabled = false);
+                .OnComplete(() => packageLight.enabled = false);
         }
 
     }
 
-    public void IntoTheAbyss()
+    public void IntoTheAbyss(Vector3 abyssPosition = default)
     {
         if (_scaleSequence.isAlive) _scaleSequence.Stop();
         _scaleSequence = Sequence.Create()
-            .Group(Tween.Scale(transform, Vector3.one, Vector3.one * 0.25f, 0.4f, Ease.InOutSine))
-            .ChainCallback((() => Destroy(gameObject)));
+            .Group(Tween.Scale(transform, Vector3.one, Vector3.one * 0.25f, 0.5f, Ease.InOutSine));
+        
+        if (abyssPosition != default)
+        {
+            rigidBody.useGravity = false;
+            rigidBody.isKinematic = false;
+            _scaleSequence.Group(Tween.Position(rigidBody.transform, abyssPosition, 0.5f, Ease.InOutSine));
+        }
+        _scaleSequence.OnComplete(() => Destroy(gameObject));
+
     }
     
     public void SetNumber(int number)

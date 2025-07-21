@@ -19,7 +19,7 @@ public class OrderScreen : MonoBehaviour
     [SerializeField] private SOGameSettings gameSettings;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private OrderCounter orderCounter;
-    [SerializeField] private DeliveryArea deliveryArea;
+    [SerializeField] private OrderDeliveryArea orderDeliveryArea;
     [SerializeField] private TextMeshProUGUI packageNumber;
     [SerializeField] private TextMeshProUGUI timeLeft;
     [SerializeField] private TextMeshProUGUI statusText;
@@ -37,6 +37,9 @@ public class OrderScreen : MonoBehaviour
     {
         informationCanvas.alpha = 0;
         statusCanvas.alpha = 0;
+        statusText.text = "";
+        packageNumber.text = "";
+        timeLeft.text = "";
         _originalTimeColor = timeLeft.color;
         _originalTimeScale = timeLeft.transform.localScale;
     }
@@ -46,12 +49,29 @@ public class OrderScreen : MonoBehaviour
         orderCounter.OnOrderStartedEvent += OnOrderStarted;
         orderCounter.OnOrderTimeChangedEvent += OnOrderTimeChanged;
         orderCounter.OnOrderFinishedEvent += OnOrderFinished;
+        orderCounter.OnStoppedTakingOrdersEvent += OnStoppedTakingOrders;
     }
+
+    private void OnStoppedTakingOrders()
+    {
+        if (_stateChangeSequence.isAlive) _stateChangeSequence.Stop();
+        _stateChangeSequence = Sequence.Create()
+            .Group(Tween.Alpha(informationCanvas, 0, stateChangeDuration/2))
+            .Chain(Tween.Alpha(statusCanvas, 1, stateChangeDuration/2));
+        
+        statusText.text = "";
+        packageNumber.text = "";
+        timeLeft.text = "";
+        timeLeft.color = _originalTimeColor;
+        timeLeft.transform.localScale = _originalTimeScale;
+    }
+
     private void OnDisable()
     {
         orderCounter.OnOrderStartedEvent -= OnOrderStarted;
         orderCounter.OnOrderTimeChangedEvent -= OnOrderTimeChanged;
         orderCounter.OnOrderFinishedEvent -= OnOrderFinished;
+        orderCounter.OnStoppedTakingOrdersEvent -= OnStoppedTakingOrders;
     }
 
     private void OnOrderTimeChanged(Order order)
@@ -87,7 +107,7 @@ public class OrderScreen : MonoBehaviour
     
     
     
-    private void OnOrderFinished(bool success, NumberdPackage package)
+    private void OnOrderFinished(bool success, NumberdPackage package, int orderWorth)
     {
         if (_stateChangeSequence.isAlive) _stateChangeSequence.Stop();
         _stateChangeSequence = Sequence.Create()
@@ -96,7 +116,7 @@ public class OrderScreen : MonoBehaviour
         
         if (success)
         {
-            statusText.text = "Order Completed!";
+            statusText.text = $"Order Completed!\n +{orderWorth}$";
             statusText.color = Color.green;
             orderCompletedSfx?.Play(audioSource);
         }

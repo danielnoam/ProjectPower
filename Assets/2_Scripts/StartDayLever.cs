@@ -1,11 +1,10 @@
-using System;
 using PrimeTween;
 using UnityEngine;
 
 [DisallowMultipleComponent]
 [SelectionBase]
 [RequireComponent(typeof(Interactable))]
-public class StartGameLever : MonoBehaviour
+public class StartDayLever : MonoBehaviour
 {
 
     [Header("Pull Animation")]
@@ -33,13 +32,13 @@ public class StartGameLever : MonoBehaviour
     private void OnEnable()
     {
         interactable.OnInteract += OnInteract;
-        if (GameManager.Instance) GameManager.Instance.OnGameFinished += ReleaseLever;
+        if (GameManager.Instance) GameManager.Instance.OnDayFinished += ReleaseLever;
     }
 
     private void OnDisable()
     {
         interactable.OnInteract -= OnInteract;
-        if (GameManager.Instance) GameManager.Instance.OnGameFinished -= ReleaseLever;
+        if (GameManager.Instance) GameManager.Instance.OnDayFinished -= ReleaseLever;
     }
 
     private void OnInteract(PlayerInteraction interactor)
@@ -61,7 +60,7 @@ public class StartGameLever : MonoBehaviour
             .OnComplete(() =>
             {
                 _isLeverPulled = true;
-                GameManager.Instance.StartGame();
+                GameManager.Instance.StartDay();
             });
     }
     

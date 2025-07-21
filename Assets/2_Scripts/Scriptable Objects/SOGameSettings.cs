@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DNExtensions;
@@ -9,11 +10,6 @@ using Random = UnityEngine.Random;
 [CreateAssetMenu(fileName = "Game Settings", menuName = "Scriptable Objects/New Game Settings", order = 1)]
 public class SOGameSettings : ScriptableObject
 {
-    public SOGameSettings()
-    {
-        PrimeTweenConfig.warnEndValueEqualsCurrent = false;
-    }
-    
     [Header("Package Settings")]
     [SerializeField] private int smallPackageMaxNumber = 500;
     [SerializeField] private int mediumPackageMaxNumber = 1000;
@@ -23,7 +19,8 @@ public class SOGameSettings : ScriptableObject
     
     [Header("Order Settings")]
     [SerializeField] private int ordersNeededToChangeDifficulty = 7;
-    [SerializeField] private int ordersNeededToCompleteGame = 30;
+    [SerializeField] private int ordersNeededToCompleteDay = 30;
+    [SerializeField] private int orderFailuresToFailDay = 15;
     [SerializeField, MinMaxRange(1,10)] private RangedFloat timeBetweenOrders = new RangedFloat(5f, 10f);
     [SerializeField] private SOOrderCombinations easyOrderCombinations;
     [SerializeField] private SOOrderCombinations mediumOrderCombinations;
@@ -45,13 +42,19 @@ public class SOGameSettings : ScriptableObject
     public RangedFloat TimeBetweenOrders => timeBetweenOrders;
     public RangedInt PackageNumbersRange => packageNumbersRange;
     public int OrdersNeededToChangeDifficulty => ordersNeededToChangeDifficulty;
-    public int OrdersNeededToCompleteGame => ordersNeededToCompleteGame;
+    public int OrdersNeededToCompleteDay => ordersNeededToCompleteDay;
+    public int OrderFailuresToFailDay => orderFailuresToFailDay;
     public float OutlineWidth => outlineWidth;
     public Color OutlineColor => outlineColor;
     public Outline.Mode OutlineMode => outlineMode;
 
-    
-    
+
+    private void OnEnable()
+    {
+        PrimeTweenConfig.warnEndValueEqualsCurrent = false;
+        Debug.Log("Game Settings Initialized");
+    }
+
     public NumberdPackage GetPackagePrefabByNumber(int number)
     {
         if (number <= smallPackageMaxNumber)
@@ -120,9 +123,20 @@ public class SOGameSettings : ScriptableObject
         }
         return false;
     }
-    
-    
-    
 
 
+    public int GetOrderWorth(Difficulty difficulty)
+    {
+        switch (difficulty)
+        {
+            case Difficulty.Easy:
+                return easyOrderCombinations.OrderReward;
+            case Difficulty.Medium:
+                return mediumOrderCombinations.OrderReward;
+            case Difficulty.Hard:
+                return hardOrderCombinations.OrderReward;
+            default:
+                return easyOrderCombinations.OrderReward;
+        }
+    }
 }

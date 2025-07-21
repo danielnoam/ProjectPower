@@ -15,22 +15,29 @@ public class GameManager : MonoBehaviour
     [SerializeField] private SOGameSettings gameSettings;
     [SerializeField] private SOVFEffectsSequence introVFXSequence;
 
+
+    [Header("Game State")]
+    [SerializeField, ReadOnly] private int currentDay;
+    [SerializeField, ReadOnly] private int currentCurrency;
+    [SerializeField, ReadOnly] private int lifetimeCompletedOrders;
+    [SerializeField, ReadOnly] private int lifetimeFailedOrders;
     
-    [Header("Current Game State")]
-    [SerializeField, ReadOnly] private Difficulty gameDifficulty;
-    [SerializeField, ReadOnly] private int currentCompletedOrders;
-    [SerializeField, ReadOnly] private int totalCompletedOrders;
-    [SerializeField, ReadOnly] private int totalFailedOrders;
+    [Header("Current Day")]
+    [SerializeField, ReadOnly] private Difficulty currentDifficulty;
+    [SerializeField, ReadOnly] private int currentDifficultyCompletedOrders;
+    [SerializeField, ReadOnly] private int totalDayCompletedOrders;
+    [SerializeField, ReadOnly] private int totalDayFailedOrders;
     
     
     private readonly List<OrderCounter> _orderCounters = new List<OrderCounter>();
     private readonly List<PackageSpawner> _packageSpawners = new List<PackageSpawner>();
     private readonly Dictionary<PowerMachine, int> _powerMachines = new Dictionary<PowerMachine, int>();
     
+    
     public Dictionary<PowerMachine, int> PowerMachines => _powerMachines;
-    public Difficulty GameDifficulty => gameDifficulty;
-    public event Action OnGameStarted;
-    public event Action OnGameFinished;
+    public Difficulty GameDifficulty => currentDifficulty;
+    public event Action OnDayStarted;
+    public event Action OnDayFinished;
     
     
     private void Awake()
@@ -43,7 +50,11 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        
+
+        currentDay = 1;
+        currentCurrency = 0;
+        lifetimeCompletedOrders = 0;
+        lifetimeFailedOrders = 0;
     }
 
     private void Start()
@@ -74,49 +85,47 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void OnOrderFinished(bool success, NumberdPackage package)
+    private void OnOrderFinished(bool success, NumberdPackage package, int orderWorth)
     {
         if (success) 
         {
-            totalCompletedOrders++;
+            totalDayCompletedOrders++;
+            currentCurrency += orderWorth;
             
-            if (totalCompletedOrders >= gameSettings.OrdersNeededToCompleteGame)
+            if (totalDayCompletedOrders >= gameSettings.OrdersNeededToCompleteDay)
             {
-                FinishGame();
+                FinishDay();
+                return;
             }
-            else
+
+            if (currentDifficultyCompletedOrders >= gameSettings.OrdersNeededToChangeDifficulty)
             {
-                if (currentCompletedOrders >= gameSettings.OrdersNeededToChangeDifficulty)
+                switch (currentDifficulty)
                 {
-                    switch (gameDifficulty)
-                    {
-                        case Difficulty.Easy:
-                            gameDifficulty = Difficulty.Medium;
-                            currentCompletedOrders = 0;
-                            break;
-                        case Difficulty.Medium:
-                            gameDifficulty = Difficulty.Hard;
-                            currentCompletedOrders = 0;
-                            break;
-                    }
+                    case Difficulty.Easy:
+                        currentDifficulty = Difficulty.Medium;
+                        currentDifficultyCompletedOrders = 0;
+                        break;
+                    case Difficulty.Medium:
+                        currentDifficulty = Difficulty.Hard;
+                        currentDifficultyCompletedOrders = 0;
+                        break;
                 }
             }
         }
         else
         {
-            totalFailedOrders++;
+            totalDayFailedOrders++;
+            
+            if (totalDayFailedOrders >= gameSettings.OrderFailuresToFailDay)
+            {
+                FailDay();
+                return;
+            }
         }
     }
 
-    private void FinishGame()
-    {
-        foreach (var orderCounter in _orderCounters)
-        {
-            orderCounter.OnOrderFinishedEvent -= OnOrderFinished;
-            orderCounter.StopTakingOrders();
-        }
-        OnGameFinished?.Invoke();
-    }
+
 
     private void FindOrderCounters()
     {
@@ -167,15 +176,40 @@ public class GameManager : MonoBehaviour
         }
     }
     
+    private void FinishDay()
+    {
+        foreach (var orderCounter in _orderCounters)
+        {
+            orderCounter.OnOrderFinishedEvent -= OnOrderFinished;
+            orderCounter.StopTakingOrders();
+        }
+        currentDay++;
+        lifetimeCompletedOrders += totalDayCompletedOrders;
+        lifetimeFailedOrders += totalDayFailedOrders;
+        OnDayFinished?.Invoke();
+    }
+    
+    private void FailDay()
+    {
+        foreach (var orderCounter in _orderCounters)
+        {
+            orderCounter.OnOrderFinishedEvent -= OnOrderFinished;
+            orderCounter.StopTakingOrders();
+        }
+        lifetimeFailedOrders += totalDayFailedOrders;
+        OnDayFinished?.Invoke();
+    }
+    
 
-    public void StartGame()
+    public void StartDay()
     {
         if (_orderCounters.Count == 0) return;
         
-        gameDifficulty = Difficulty.Easy;
-        currentCompletedOrders = 0;
-        totalCompletedOrders = 0;
-        totalFailedOrders = 0;
+        currentDifficulty = Difficulty.Easy;
+        currentDifficultyCompletedOrders = 0;
+        totalDayCompletedOrders = 0;
+        totalDayFailedOrders = 0;
+        
         var firstOrderCounterStartedWithNoDelay = false;
         foreach (var orderCounter in _orderCounters)
         {
@@ -189,6 +223,9 @@ public class GameManager : MonoBehaviour
                 orderCounter.StartNewOrder(gameSettings.TimeBetweenOrders.maxValue);
             }
         }
-        OnGameStarted?.Invoke();
+        
+        OnDayStarted?.Invoke();
     }
+    
+
 }
