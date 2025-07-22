@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 149265de5f6f4644a43625511a3f9e75, type: 3}
   m_Name: Order Combinations Hard
   m_EditorClassIdentifier: 
+  orderReward: 10
   orderCombinations:
     _serializedList:
     - Key: 4
@@ -64,3 +65,7 @@ MonoBehaviour:
       Value: 55
     - Key: 4096
       Value: 55
+  allowMultipleNumbers: 1
+  multipleOrderRange:
+    minValue: 1
+    maxValue: 3

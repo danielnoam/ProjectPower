@@ -1,23 +1,36 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using DNExtensions;
+using PrimeTween;
 using UnityEngine;
 
 [DisallowMultipleComponent]
 public class OrderCounter : MonoBehaviour
 {
+    [Header("Blinds Animation")]
+    [SerializeField] private float blindsOpenDuration = 1.5f;
+    [SerializeField] private float blindsCloseDuration = 1.5f;
+    [SerializeField] private Ease blindsOpenEase = Ease.OutBack;
+    [SerializeField] private Ease blindsCloseEase = Ease.InBack;
+    [SerializeField] private Vector3 blindsOpenPosition = new Vector3(0, 0, 0);
+    [SerializeField] private Vector3 blindsClosePosition = new Vector3(0, -1.5f, 0);
+    
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
     [SerializeField] private OrderDeliveryArea orderDeliveryArea;
     [SerializeField] private Transform clientHolder;
+    [SerializeField] private Transform blindsTransform;
 
+    private Sequence _blindsAnimationSequence;
     private Coroutine _startOrderCoroutine;
     private Order _currentOrder;
     private GameObject _currentClient;
+    private bool _isTakingOrders;
     
 
     public event Action<Order> OnOrderStartedEvent;
-    public event Action<bool, NumberdPackage, int> OnOrderFinishedEvent;
+    public event Action<bool, List<NumberdPackage>, int> OnOrderFinishedEvent;
     public event Action<Order> OnOrderTimeChangedEvent;
     public event Action OnStoppedTakingOrdersEvent;
     
@@ -25,11 +38,24 @@ public class OrderCounter : MonoBehaviour
     private void OnEnable()
     {
         orderDeliveryArea.OnPackageEnteredArea += OnPackageEnteredOrderDeliveryArea;
+        
+        if (GameManager.Instance)
+        {
+            GameManager.Instance.OnDayFinished += OnDayFinished;
+            GameManager.Instance.OnDayStarted += OnDayStarted;
+        }
     }
+
 
     private void OnDisable()
     {
         orderDeliveryArea.OnPackageEnteredArea -= OnPackageEnteredOrderDeliveryArea;
+        
+        if (GameManager.Instance)
+        {
+            GameManager.Instance.OnDayFinished -= OnDayFinished;
+            GameManager.Instance.OnDayStarted -= OnDayStarted;
+        }
     }
     
 
@@ -38,24 +64,38 @@ public class OrderCounter : MonoBehaviour
         UpdateOrderTimeLeft();
     }
     
-    
-    private void OnPackageEnteredOrderDeliveryArea(NumberdPackage package)
+    private void OnDayFinished(int day)
     {
-        TryCompleteOrder(package);
+        StopTakingOrders();
     }
     
-    private void TryCompleteOrder(NumberdPackage package)
+    private void OnDayStarted(int day)
+    {
+        StartTakingOrders(gameSettings.TimeBetweenOrders.RandomValue);
+    }
+
+    
+    private void OnPackageEnteredOrderDeliveryArea(List<NumberdPackage> packagesInDeliveryArea)
+    {
+        TryCompleteOrder(packagesInDeliveryArea);
+    }
+    
+    private void TryCompleteOrder(List<NumberdPackage> packagesInDeliveryArea)
     {
         if (_currentOrder == null) return;
         
-        if (_currentOrder.IsOrderCompleted(package))
+        if (_currentOrder.IsOrderCompleted(packagesInDeliveryArea, out List<NumberdPackage> usedPackages))
         {
-            OnOrderFinishedEvent?.Invoke(true, package, _currentOrder.worth);
-
+            foreach (var package in usedPackages)
+            {
+                orderDeliveryArea.RemovePackage(package);
+                package.IntoTheAbyss();
+            }
+            OnOrderFinishedEvent?.Invoke(true, usedPackages, _currentOrder.Worth);
             _currentOrder = null;
-            StartNewOrder(gameSettings.TimeBetweenOrders.RandomValue);
-            orderDeliveryArea.RemovePackage(package);
-            package.IntoTheAbyss();
+
+            
+            TakeAnotherOrder(gameSettings.TimeBetweenOrders.RandomValue);
         }
     }
     
@@ -63,9 +103,9 @@ public class OrderCounter : MonoBehaviour
     {
         if (_currentOrder == null) return;
         
-        _currentOrder.timeLeft -= Time.deltaTime;
+        _currentOrder.TimeLeft -= Time.deltaTime;
         OnOrderTimeChangedEvent?.Invoke(_currentOrder);
-        if (_currentOrder.timeLeft <= 0)
+        if (_currentOrder.TimeLeft <= 0)
         {
             FailOrder();
         }
@@ -73,6 +113,8 @@ public class OrderCounter : MonoBehaviour
     
     private IEnumerator StartOrderIn(float time)
     {
+        if (_currentOrder != null || !_isTakingOrders) yield break;
+        
         yield return new WaitForSeconds(time);
         _currentOrder = new Order(gameSettings, GameManager.Instance?.GameDifficulty ?? Difficulty.Easy);
         if (_currentClient) 
@@ -84,9 +126,15 @@ public class OrderCounter : MonoBehaviour
     }
     
     [Button]
-    public void StartNewOrder(float time = 0.1f)
+    private void StartTakingOrders(float time = 0.1f)
     {
-        if (!gameSettings) return;
+        if (!gameSettings || _isTakingOrders) return;
+        
+        _isTakingOrders = true;
+        
+        if (_blindsAnimationSequence.isAlive) _blindsAnimationSequence.Stop();
+        _blindsAnimationSequence = Sequence.Create()
+            .Group(Tween.LocalPosition(blindsTransform, blindsOpenPosition, blindsOpenDuration, blindsOpenEase));
         
         if (_startOrderCoroutine != null)
         {
@@ -95,8 +143,17 @@ public class OrderCounter : MonoBehaviour
         _startOrderCoroutine = StartCoroutine(StartOrderIn(time));
     }
 
-    public void StopTakingOrders()
+    [Button]
+    private void StopTakingOrders()
     {
+        if (!gameSettings || !_isTakingOrders) return;
+        
+        _isTakingOrders = false;
+        
+        if (_blindsAnimationSequence.isAlive) _blindsAnimationSequence.Stop();
+        _blindsAnimationSequence = Sequence.Create()
+            .Group(Tween.LocalPosition(blindsTransform, blindsClosePosition, blindsCloseDuration, blindsCloseEase));
+        
         if (_startOrderCoroutine != null)
         {
             StopCoroutine(_startOrderCoroutine);
@@ -110,10 +167,23 @@ public class OrderCounter : MonoBehaviour
             _currentClient = null;
         }
         
+
         OnStoppedTakingOrdersEvent?.Invoke();
     }
     
-    [Button]
+    
+    private void TakeAnotherOrder(float time = 0.1f)
+    {
+        if (!gameSettings || !_isTakingOrders || _currentOrder != null) return;
+        
+        
+        if (_startOrderCoroutine != null)
+        {
+            StopCoroutine(_startOrderCoroutine);
+        }
+        _startOrderCoroutine = StartCoroutine(StartOrderIn(time));
+    }
+
     public void FailOrder()
     {
         if (_currentOrder == null) return;
@@ -125,6 +195,8 @@ public class OrderCounter : MonoBehaviour
             Destroy(_currentClient);
             _currentClient = null;
         }
-        StartNewOrder(gameSettings.TimeBetweenOrders.RandomValue);
+        
+        TakeAnotherOrder();
     }
+    
 }

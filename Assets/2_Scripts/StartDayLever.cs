@@ -64,7 +64,7 @@ public class StartDayLever : MonoBehaviour
             });
     }
     
-    private void ReleaseLever()
+    private void ReleaseLever(int day)
     {
         if (_leverSequence.isAlive) _leverSequence.Stop();
 

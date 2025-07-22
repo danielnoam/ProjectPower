@@ -827,7 +827,7 @@ MonoBehaviour:
   gameSettings: {fileID: 11400000, guid: 074051d85b369d84881ac98c8e460b48, type: 2}
   audioSource: {fileID: 6768807118026032869}
   orderCounter: {fileID: 0}
-  deliveryArea: {fileID: 0}
+  orderDeliveryArea: {fileID: 0}
   packageNumber: {fileID: 6239190302869197661}
   timeLeft: {fileID: 2963367742395964057}
   statusText: {fileID: 5040541260650881279}
@@ -845,7 +845,7 @@ GameObject:
   - component: {fileID: 4939957516678616085}
   - component: {fileID: 6239190302869197661}
   m_Layer: 5
-  m_Name: PackageNumber
+  m_Name: PackageNumbers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -867,8 +867,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -100, y: -48}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -100, y: -61.6}
+  m_SizeDelta: {x: 119.67, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4939957516678616085
 CanvasRenderer:
@@ -898,7 +898,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 2
+  m_text: 300, 256, 300
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 33566ad56e734b449bfcbb6b8d6e30c2, type: 2}
   m_sharedMaterial: {fileID: 6596836777605334261, guid: 33566ad56e734b449bfcbb6b8d6e30c2, type: 2}
@@ -925,8 +925,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 66
-  m_fontSizeBase: 66
+  m_fontSize: 33
+  m_fontSizeBase: 33
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

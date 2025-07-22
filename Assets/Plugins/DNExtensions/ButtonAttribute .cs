@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -21,7 +22,6 @@ namespace DNExtensions
         /// </summary>
         public ButtonAttribute() {}
         
-        
         /// <summary>
         /// Adds a button for the method in the inspector
         /// </summary>
@@ -29,7 +29,6 @@ namespace DNExtensions
         {
             this.Name = name;
         }
-        
         
         /// <summary>
         /// Adds a button for the method in the inspector
@@ -39,7 +38,6 @@ namespace DNExtensions
             this.Name = name;
             this.Size = size;
         }
-        
         
         /// <summary>
         /// Adds a button for the method in the inspector
@@ -67,6 +65,9 @@ namespace DNExtensions
     [CustomEditor(typeof(MonoBehaviour), true)]
     public class ButtonAttributeEditor : UnityEditor.Editor
     {
+        private Dictionary<string, object[]> methodParameters = new Dictionary<string, object[]>();
+        private Dictionary<string, bool> foldoutStates = new Dictionary<string, bool>();
+        
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
@@ -96,6 +97,26 @@ namespace DNExtensions
             string buttonText = string.IsNullOrEmpty(buttonAttr.Name) ? 
                 ObjectNames.NicifyVariableName(method.Name) : buttonAttr.Name;
             
+            // Get method parameters
+            ParameterInfo[] parameters = method.GetParameters();
+            string methodKey = target.GetInstanceID() + "_" + method.Name;
+            
+            // Initialize parameter values if not exists
+            if (!methodParameters.ContainsKey(methodKey))
+            {
+                methodParameters[methodKey] = new object[parameters.Length];
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    methodParameters[methodKey][i] = GetDefaultValue(parameters[i].ParameterType);
+                }
+            }
+            
+            // Initialize foldout state if not exists
+            if (!foldoutStates.ContainsKey(methodKey))
+            {
+                foldoutStates[methodKey] = false;
+            }
+            
             // Set button color
             Color originalColor = GUI.backgroundColor;
             GUI.backgroundColor = buttonAttr.Color;
@@ -103,19 +124,121 @@ namespace DNExtensions
             // Draw the button
             if (GUILayout.Button(buttonText, GUILayout.Height(buttonAttr.Size)))
             {
-                method.Invoke(target, null);
+                try
+                {
+                    method.Invoke(target, methodParameters[methodKey]);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError($"Error invoking method {method.Name}: {e.Message}");
+                }
             }
             
             // Restore original color
             GUI.backgroundColor = originalColor;
+            
+            // Draw parameter foldout under the button
+            if (parameters.Length > 0)
+            {
+                EditorGUI.indentLevel++;
+                foldoutStates[methodKey] = EditorGUILayout.Foldout(
+                    foldoutStates[methodKey], 
+                    $"Parameters ({parameters.Length})",
+                    true,
+                    EditorStyles.foldoutHeader
+                );
+                
+                if (foldoutStates[methodKey])
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                    
+                    for (int i = 0; i < parameters.Length; i++)
+                    {
+                        methodParameters[methodKey][i] = DrawParameterField(
+                            parameters[i].Name, 
+                            parameters[i].ParameterType, 
+                            methodParameters[methodKey][i]
+                        );
+                    }
+                    
+                    EditorGUILayout.EndVertical();
+                    EditorGUI.indentLevel--;
+                }
+                
+                EditorGUI.indentLevel--;
+            }
+        }
+        
+        private object DrawParameterField(string paramName, Type paramType, object currentValue)
+        {
+            string niceName = ObjectNames.NicifyVariableName(paramName);
+            
+            if (paramType == typeof(int))
+            {
+                return EditorGUILayout.IntField(niceName, currentValue != null ? (int)currentValue : 0);
+            }
+            else if (paramType == typeof(float))
+            {
+                return EditorGUILayout.FloatField(niceName, currentValue != null ? (float)currentValue : 0f);
+            }
+            else if (paramType == typeof(string))
+            {
+                return EditorGUILayout.TextField(niceName, currentValue != null ? (string)currentValue : "");
+            }
+            else if (paramType == typeof(bool))
+            {
+                return EditorGUILayout.Toggle(niceName, currentValue != null ? (bool)currentValue : false);
+            }
+            else if (paramType == typeof(Vector2))
+            {
+                return EditorGUILayout.Vector2Field(niceName, currentValue != null ? (Vector2)currentValue : Vector2.zero);
+            }
+            else if (paramType == typeof(Vector3))
+            {
+                return EditorGUILayout.Vector3Field(niceName, currentValue != null ? (Vector3)currentValue : Vector3.zero);
+            }
+            else if (paramType == typeof(Color))
+            {
+                return EditorGUILayout.ColorField(niceName, currentValue != null ? (Color)currentValue : Color.white);
+            }
+            else if (paramType.IsEnum)
+            {
+                return EditorGUILayout.EnumPopup(niceName, currentValue != null ? (Enum)currentValue : (Enum)Enum.GetValues(paramType).GetValue(0));
+            }
+            else if (typeof(UnityEngine.Object).IsAssignableFrom(paramType))
+            {
+                return EditorGUILayout.ObjectField(niceName, (UnityEngine.Object)currentValue, paramType, true);
+            }
+            else
+            {
+                EditorGUILayout.LabelField(niceName, $"Unsupported type: {paramType.Name}");
+                return currentValue;
+            }
+        }
+        
+        private object GetDefaultValue(Type type)
+        {
+            if (type == typeof(string)) return "";
+            if (type == typeof(int)) return 0;
+            if (type == typeof(float)) return 0f;
+            if (type == typeof(bool)) return false;
+            if (type == typeof(Vector2)) return Vector2.zero;
+            if (type == typeof(Vector3)) return Vector3.zero;
+            if (type == typeof(Color)) return Color.white;
+            if (type.IsEnum) return Enum.GetValues(type).GetValue(0);
+            if (typeof(UnityEngine.Object).IsAssignableFrom(type)) return null;
+            
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
         }
     }
     
-    
-
     [CustomEditor(typeof(ScriptableObject), true)]
     public class ButtonAttributeScriptableObjectEditor : UnityEditor.Editor
     {
+        private Dictionary<string, object[]> methodParameters = new Dictionary<string, object[]>();
+        private Dictionary<string, bool> foldoutStates = new Dictionary<string, bool>();
+        
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
@@ -145,6 +268,26 @@ namespace DNExtensions
             string buttonText = string.IsNullOrEmpty(buttonAttr.Name) ? 
                 ObjectNames.NicifyVariableName(method.Name) : buttonAttr.Name;
             
+            // Get method parameters
+            ParameterInfo[] parameters = method.GetParameters();
+            string methodKey = target.GetInstanceID() + "_" + method.Name;
+            
+            // Initialize parameter values if not exists
+            if (!methodParameters.ContainsKey(methodKey))
+            {
+                methodParameters[methodKey] = new object[parameters.Length];
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    methodParameters[methodKey][i] = GetDefaultValue(parameters[i].ParameterType);
+                }
+            }
+            
+            // Initialize foldout state if not exists
+            if (!foldoutStates.ContainsKey(methodKey))
+            {
+                foldoutStates[methodKey] = false;
+            }
+            
             // Set button color
             Color originalColor = GUI.backgroundColor;
             GUI.backgroundColor = buttonAttr.Color;
@@ -152,11 +295,112 @@ namespace DNExtensions
             // Draw the button
             if (GUILayout.Button(buttonText, GUILayout.Height(buttonAttr.Size)))
             {
-                method.Invoke(target, null);
+                try
+                {
+                    method.Invoke(target, methodParameters[methodKey]);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError($"Error invoking method {method.Name}: {e.Message}");
+                }
             }
             
             // Restore original color
             GUI.backgroundColor = originalColor;
+            
+            // Draw parameter foldout under the button
+            if (parameters.Length > 0)
+            {
+                EditorGUI.indentLevel++;
+                foldoutStates[methodKey] = EditorGUILayout.Foldout(
+                    foldoutStates[methodKey], 
+                    $"Parameters ({parameters.Length})",
+                    true,
+                    EditorStyles.foldoutHeader
+                );
+                
+                if (foldoutStates[methodKey])
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                    
+                    for (int i = 0; i < parameters.Length; i++)
+                    {
+                        methodParameters[methodKey][i] = DrawParameterField(
+                            parameters[i].Name, 
+                            parameters[i].ParameterType, 
+                            methodParameters[methodKey][i]
+                        );
+                    }
+                    
+                    EditorGUILayout.EndVertical();
+                    EditorGUI.indentLevel--;
+                }
+                
+                EditorGUI.indentLevel--;
+            }
+        }
+        
+        private object DrawParameterField(string paramName, Type paramType, object currentValue)
+        {
+            string niceName = ObjectNames.NicifyVariableName(paramName);
+            
+            if (paramType == typeof(int))
+            {
+                return EditorGUILayout.IntField(niceName, currentValue != null ? (int)currentValue : 0);
+            }
+            else if (paramType == typeof(float))
+            {
+                return EditorGUILayout.FloatField(niceName, currentValue != null ? (float)currentValue : 0f);
+            }
+            else if (paramType == typeof(string))
+            {
+                return EditorGUILayout.TextField(niceName, currentValue != null ? (string)currentValue : "");
+            }
+            else if (paramType == typeof(bool))
+            {
+                return EditorGUILayout.Toggle(niceName, currentValue != null ? (bool)currentValue : false);
+            }
+            else if (paramType == typeof(Vector2))
+            {
+                return EditorGUILayout.Vector2Field(niceName, currentValue != null ? (Vector2)currentValue : Vector2.zero);
+            }
+            else if (paramType == typeof(Vector3))
+            {
+                return EditorGUILayout.Vector3Field(niceName, currentValue != null ? (Vector3)currentValue : Vector3.zero);
+            }
+            else if (paramType == typeof(Color))
+            {
+                return EditorGUILayout.ColorField(niceName, currentValue != null ? (Color)currentValue : Color.white);
+            }
+            else if (paramType.IsEnum)
+            {
+                return EditorGUILayout.EnumPopup(niceName, currentValue != null ? (Enum)currentValue : (Enum)Enum.GetValues(paramType).GetValue(0));
+            }
+            else if (typeof(UnityEngine.Object).IsAssignableFrom(paramType))
+            {
+                return EditorGUILayout.ObjectField(niceName, (UnityEngine.Object)currentValue, paramType, true);
+            }
+            else
+            {
+                EditorGUILayout.LabelField(niceName, $"Unsupported type: {paramType.Name}");
+                return currentValue;
+            }
+        }
+        
+        private object GetDefaultValue(Type type)
+        {
+            if (type == typeof(string)) return "";
+            if (type == typeof(int)) return 0;
+            if (type == typeof(float)) return 0f;
+            if (type == typeof(bool)) return false;
+            if (type == typeof(Vector2)) return Vector2.zero;
+            if (type == typeof(Vector3)) return Vector3.zero;
+            if (type == typeof(Color)) return Color.white;
+            if (type.IsEnum) return Enum.GetValues(type).GetValue(0);
+            if (typeof(UnityEngine.Object).IsAssignableFrom(type)) return null;
+            
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
         }
     }
 #endif

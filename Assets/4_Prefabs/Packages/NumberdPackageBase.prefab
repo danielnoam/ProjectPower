@@ -239,6 +239,7 @@ MonoBehaviour:
   audioSource: {fileID: 5558961000962217231}
   collisionSfx: {fileID: 11400000, guid: b9446af674053314c9279e6a5d76cd93, type: 2}
   number: 2
+  gameSettings: {fileID: 11400000, guid: 074051d85b369d84881ac98c8e460b48, type: 2}
   packageLight: {fileID: 8745208379277029707}
   numberTexts:
   - {fileID: 4485284018079062957}

@@ -6,11 +6,10 @@ using UnityEditor;
 using UnityEngine;
 using DNExtensions.VFXManager;
 
-
 namespace Editor
 {
 #if UNITY_EDITOR
-
+    
     [CustomPropertyDrawer(typeof(VFEffectsEffectBase), true)]
     public class VFEffectsDrawer : PropertyDrawer {
         private static Dictionary<string, Type> typeMap;
@@ -74,8 +73,8 @@ namespace Editor
             return parts.Length > 1 ? parts[1].Split('.').Last() : fullTypeName;
         }
     }
-#endif
     
+#endif
 }
 
 

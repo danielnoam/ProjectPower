@@ -203,7 +203,7 @@ public abstract class ProcessingMachineBase : MonoBehaviour
     }
     
     protected abstract bool CanProcessPackage(NumberdPackage package);
-    protected abstract int CalculateOutput(NumberdPackage package);
+    public abstract int CalculateOutput(NumberdPackage package);
 
     protected virtual void OnDrawGizmos()
     {

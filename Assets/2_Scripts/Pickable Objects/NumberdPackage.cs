@@ -12,6 +12,7 @@ public class NumberdPackage : PickableObject
     [SerializeField, Min(2)] private int number = 2;
     
     [Header("References")]
+    [SerializeField] private SOGameSettings gameSettings;
     [SerializeField] private Light packageLight;
     [SerializeField] private TextMeshProUGUI[] numberTexts;
 
@@ -22,7 +23,7 @@ public class NumberdPackage : PickableObject
 
     private void OnValidate()
     {
-        number = Mathf.Max(2, number);
+        number = Mathf.Clamp(number, gameSettings.PackageNumbersRange.minValue, gameSettings.PackageNumbersRange.maxValue);
         if (numberTexts == null || numberTexts.Length == 0)
         {
             numberTexts = GetComponentsInChildren<TextMeshProUGUI>();
@@ -89,6 +90,7 @@ public class NumberdPackage : PickableObject
         this.number = Mathf.Max(2, number);
         UpdatePackageVisuals();
     }
+    
     
 
     public void Push(Vector3 direction, float force)

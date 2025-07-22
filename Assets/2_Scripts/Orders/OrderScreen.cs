@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DNExtensions;
 using PrimeTween;
 using TMPro;
@@ -57,7 +58,8 @@ public class OrderScreen : MonoBehaviour
         if (_stateChangeSequence.isAlive) _stateChangeSequence.Stop();
         _stateChangeSequence = Sequence.Create()
             .Group(Tween.Alpha(informationCanvas, 0, stateChangeDuration/2))
-            .Chain(Tween.Alpha(statusCanvas, 1, stateChangeDuration/2));
+            .Chain(Tween.Alpha(statusCanvas, 0, stateChangeDuration/2));
+        
         
         statusText.text = "";
         packageNumber.text = "";
@@ -78,14 +80,14 @@ public class OrderScreen : MonoBehaviour
     {
         if (order == null) return;
         
-        timeLeft.text = $"{order.timeLeft:F0}";
+        timeLeft.text = $"{order.TimeLeft:F0}";
 
         if (_timeLeftPunchSequence.isAlive) _timeLeftPunchSequence.Stop();
         timeLeft.transform.localScale = _originalTimeScale;
         _timeLeftPunchSequence = Sequence.Create()
             .Group(Tween.PunchScale(timeLeft.transform, Vector3.one * 1f, 1f, 1f));
 
-        if (order.timeLeft <= 10)
+        if (order.TimeLeft <= 10)
         {
             timeLeft.color = lowTimeColor;
         }
@@ -101,13 +103,34 @@ public class OrderScreen : MonoBehaviour
         
         timeLeft.color = _originalTimeColor;
         timeLeft.transform.localScale = _originalTimeScale;
-        packageNumber.text = $"{order.targetNumber}";
+
+        if (order.NumbersNeeded.Count > 1)
+        {
+            for (var index = 0; index < order.NumbersNeeded.Count; index++)
+            {
+                var number = order.NumbersNeeded[index];
+                
+                if (index == order.NumbersNeeded.Count - 1)
+                {
+                    packageNumber.text += $"{number}";
+                }
+                else
+                {
+                    packageNumber.text += $"{number}, ";
+                }
+            }
+        }
+        else
+        {
+            packageNumber.text += $"{order.NumbersNeeded[0]}";
+        }
+
         startOrderSfx?.Play(audioSource);
     }
     
     
     
-    private void OnOrderFinished(bool success, NumberdPackage package, int orderWorth)
+    private void OnOrderFinished(bool success, List<NumberdPackage> packagesInDeliveryArea, int orderWorth)
     {
         if (_stateChangeSequence.isAlive) _stateChangeSequence.Stop();
         _stateChangeSequence = Sequence.Create()
@@ -127,6 +150,8 @@ public class OrderScreen : MonoBehaviour
             orderFailedSfx?.Play(audioSource);
         }
         
+        packageNumber.text = "";
+        timeLeft.text = "";
     }
     
 }

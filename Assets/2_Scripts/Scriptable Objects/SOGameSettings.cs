@@ -84,7 +84,7 @@ public class SOGameSettings : ScriptableObject
     }
     
 
-    public (int key, float value) GetOrderNumber(Dictionary<PowerMachine, int> availablePowerMachines, Difficulty difficulty)
+    public SOOrderCombinations GetOrderCombinations(Difficulty difficulty)
     {
         var orderCombinations = easyOrderCombinations;
         switch (difficulty)
@@ -96,33 +96,10 @@ public class SOGameSettings : ScriptableObject
                 orderCombinations = hardOrderCombinations;
                 break;
         }
-        
-        var validCombinations = orderCombinations.GetCombinations().Where(kvp => CanAchieveWithAvailableMachines(kvp.Key, availablePowerMachines)).ToList();
-        if (validCombinations.Count == 0)
-        {
-            var keys = orderCombinations.GetCombinations().Keys.ToList();
-            int randomIndex = Random.Range(0, keys.Count);
-            int key = keys[randomIndex];
-            float value = orderCombinations.GetCombinations()[key];
-            return (key, value);
-        }
-        
-        int validRandomIndex = Random.Range(0, validCombinations.Count);
-        var selectedCombination = validCombinations[validRandomIndex];
-        return (selectedCombination.Key, selectedCombination.Value);
+
+        return orderCombinations;
     }
     
-    private bool CanAchieveWithAvailableMachines(int targetNumber, Dictionary<PowerMachine, int> availablePowerMachines)
-    {
-        foreach (var machine in availablePowerMachines.Keys)
-        {
-            if (machine.CanProduceNumber(targetNumber))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
 
 
     public int GetOrderWorth(Difficulty difficulty)

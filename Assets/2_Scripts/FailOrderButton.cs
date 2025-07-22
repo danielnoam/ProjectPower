@@ -2,6 +2,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using PrimeTween;
 using UnityEngine;
 
@@ -56,7 +57,7 @@ public class FailOrderButton : MonoBehaviour
         interactable.SetCanInteract(true);
     }
     
-    private void OnOrderFinished(bool success, NumberdPackage package, int orderWorth)
+    private void OnOrderFinished(bool success, List<NumberdPackage> packagesInDeliveryArea, int orderWorth)
     {
         interactable.SetCanInteract(false);
     }

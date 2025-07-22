@@ -21,7 +21,7 @@ public class RecycleMachine : ProcessingMachineBase
         return true;
     }
 
-    protected override int CalculateOutput(NumberdPackage package)
+    public override int CalculateOutput(NumberdPackage package)
     {
         return recycleOutputNumber;
     }

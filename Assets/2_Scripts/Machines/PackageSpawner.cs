@@ -21,24 +21,49 @@ public class PackageSpawner : MonoBehaviour
     private readonly List<OrderCounter> _orderCounters = new List<OrderCounter>();
     private Coroutine _spawnCoroutine;
 
-    private void Start()
+    private void Awake()
     {
         FindPackagesInGame();
         FindPowerMachines();
+        FindOrderCounters();
     }
 
     private void OnEnable()
     {
         GameManager.Instance.OnDayStarted += OnDayStarted;
+
+        foreach (var orderCounter in _orderCounters)
+        {
+            orderCounter.OnOrderFinishedEvent += OnOrderFinished;
+            orderCounter.OnOrderStartedEvent += OnOrderStarted;
+        }
+        
+        foreach (var powerMachine in _powerMachines)
+        {
+            powerMachine.OnPackageProcessed += OnPackageProcessed;
+            powerMachine.OnPackageSpawned += OnPackageSpawned;
+        }
     }
     
     private void OnDisable()
     {
         GameManager.Instance.OnDayStarted -= OnDayStarted;
+        
+        foreach (var orderCounter in _orderCounters)
+        {
+            orderCounter.OnOrderFinishedEvent -= OnOrderFinished;
+            orderCounter.OnOrderStartedEvent -= OnOrderStarted;
+        }
+        
+        foreach (var powerMachine in _powerMachines)
+        {
+            powerMachine.OnPackageProcessed -= OnPackageProcessed;
+            powerMachine.OnPackageSpawned -= OnPackageSpawned;
+        }
     }
     
     
-    private void OnDayStarted()
+    private void OnDayStarted(int day)
     {
         if (_packagesInGame.Count < initialPackageCount)
         {
@@ -50,90 +75,114 @@ public class PackageSpawner : MonoBehaviour
         }
     }
     
-    
-    private void FindPackagesInGame()
-    {
-        _packagesInGame.Clear();
-        NumberdPackage[] allPackages = FindObjectsByType<NumberdPackage>(FindObjectsSortMode.None);
-        foreach (var package in allPackages)
-        {
-            if (package && !_packagesInGame.Contains(package))
-            {
-                _packagesInGame.Add(package);
-                packagesInGame = _packagesInGame.Count;
-            }
-        }
-    }
-    
-    private void FindPowerMachines()
-    {
-        _powerMachines.Clear();
-        PowerMachine[] allPowerMachines = FindObjectsByType<PowerMachine>(FindObjectsSortMode.None);
-        foreach (var powerMachine in allPowerMachines)
-        {
-            if (powerMachine && !_powerMachines.Contains(powerMachine))
-            {
-                _powerMachines.Add(powerMachine);
-                powerMachine.OnPackageProcessed += OnPackageProcessed;
-                powerMachine.OnPackageSpawned += OnPackageSpawned;
-            }
-        }
-    }
-    
-    private void FindOrderCounters()
-    {
-        _orderCounters.Clear();
-        OrderCounter[] allOrderCounters = FindObjectsByType<OrderCounter>(FindObjectsSortMode.None);
-        foreach (var orderCounter in allOrderCounters)
-        {
-            if (orderCounter && !_orderCounters.Contains(orderCounter))
-            {
-                _orderCounters.Add(orderCounter);
-                orderCounter.OnOrderFinishedEvent += OnOrderFinished;
-                orderCounter.OnOrderStartedEvent += OnOrderStarted;
-            }
-        }
-    }
 
     private void OnOrderStarted(Order order)
     {
         if (order == null) return;
-    
-        bool canFulfillOrder = false;
+        
+        var availableMachines = GameManager.Instance.PowerMachines;
+        var missingNumbers = new List<int>();
 
-        foreach (var package in _packagesInGame)
+
+        foreach (var numberNeeded in order.NumbersNeeded)
         {
-            if (package && package.Number == order.targetNumber)
+            bool canFulfillNumber = false;
+            
+            // Check all packages in the game
+            foreach (var package in _packagesInGame)
             {
-                canFulfillOrder = true;
-                break;
+                if (!package) continue;
+                
+                // Case 1: Package already has the exact number we need
+                if (package.Number == numberNeeded)
+                {
+                    canFulfillNumber = true;
+                    break;
+                }
+                
+                // Case 2: Package can be processed by a machine to produce the needed number
+                foreach (var machine in availableMachines.Keys)
+                {
+                    if (machine.CalculateOutput(package) == numberNeeded)
+                    {
+                        canFulfillNumber = true;
+                        break;
+                    }
+                }
+                
+                if (canFulfillNumber) break;
+            }
+            
+            // If we can't fulfill this number with existing packages, it's missing
+            if (!canFulfillNumber)
+            {
+                missingNumbers.Add(numberNeeded);
             }
         }
 
-        if (!canFulfillOrder)
+        // For missing numbers, spawn the input packages needed to produce them
+        if (missingNumbers.Count > 0)
         {
-            var availableMachines = GameManager.Instance.PowerMachines;
-        
-            foreach (var machine in availableMachines.Keys)
+
+            foreach (var missingNumber in missingNumbers)
             {
-                if (machine.CanProduceNumber(order.targetNumber))
-                {
-                    float root = Mathf.Pow(order.targetNumber, 1f / machine.Power);
-                    int rootNumber = Mathf.RoundToInt(root);
+                bool canProduce = false;
                 
-                    SpawnPackage(rootNumber);
-                    break;
+                // Try each available machine to see if it can produce the missing number
+                foreach (var machine in availableMachines.Keys)
+                {
+                    if (machine.CanProduceNumber(missingNumber))
+                    {
+                        // Calculate what input number is needed
+                        double root = Math.Pow(missingNumber, 1.0 / machine.Power);
+                        int rootNumber = Mathf.RoundToInt((float)root);
+                        
+                        // Verify this input will actually produce the target (handle precision issues)
+                        int actualOutput = PowerInt(rootNumber, machine.Power);
+                        if (actualOutput == missingNumber)
+                        {
+                            SpawnPackage(rootNumber);
+                            canProduce = true;
+                            break;
+                        }
+                        
+                        // If rounding caused issues, try adjacent values
+                        for (int testRoot = rootNumber - 1; testRoot <= rootNumber + 1; testRoot++)
+                        {
+                            if (testRoot > 0 && PowerInt(testRoot, machine.Power) == missingNumber)
+                            {
+                                SpawnPackage(testRoot);
+                                canProduce = true;
+                                break;
+                            }
+                        }
+                        
+                        if (canProduce) break;
+                    }
+                }
+                
+                if (!canProduce)
+                {
+                    Debug.LogWarning($"Cannot produce missing number {missingNumber} with available machines!");
                 }
             }
         }
+        else
+        {
+            Debug.Log("All needed numbers can be fulfilled with existing packages!");
+        }
     }
     
-    private void OnOrderFinished(bool success, NumberdPackage package, int orderWorth)
+    private void OnOrderFinished(bool success, List<NumberdPackage> packagesInDeliveryArea, int orderWorth)
     {
-        if (success &&package && _packagesInGame.Contains(package))
+        if (!success) return;
+        
+        foreach (var package in packagesInDeliveryArea)
         {
+            if (!package || !_packagesInGame.Contains(package)) continue;
             _packagesInGame.Remove(package);
             packagesInGame = _packagesInGame.Count;
+
         }
     }
 
@@ -215,6 +264,59 @@ public class PackageSpawner : MonoBehaviour
         package.SetNumber(packageNumber);
         _packagesInGame.Add(package);
         packagesInGame = _packagesInGame.Count;
+    }
+    
+    private int PowerInt(int baseValue, int exponent)
+    {
+        if (exponent == 0) return 1;
+        if (exponent == 1) return baseValue;
+    
+        int result = 1;
+        for (int i = 0; i < exponent; i++)
+        {
+            result *= baseValue;
+        }
+        return result;
+    }
+    
+    private void FindPackagesInGame()
+    {
+        _packagesInGame.Clear();
+        NumberdPackage[] allPackages = FindObjectsByType<NumberdPackage>(FindObjectsSortMode.None);
+        foreach (var package in allPackages)
+        {
+            if (package && !_packagesInGame.Contains(package))
+            {
+                _packagesInGame.Add(package);
+                packagesInGame = _packagesInGame.Count;
+            }
+        }
+    }
+    
+    private void FindPowerMachines()
+    {
+        _powerMachines.Clear();
+        PowerMachine[] allPowerMachines = FindObjectsByType<PowerMachine>(FindObjectsSortMode.None);
+        foreach (var powerMachine in allPowerMachines)
+        {
+            if (powerMachine && !_powerMachines.Contains(powerMachine))
+            {
+                _powerMachines.Add(powerMachine);
+            }
+        }
+    }
+    
+    private void FindOrderCounters()
+    {
+        _orderCounters.Clear();
+        OrderCounter[] allOrderCounters = FindObjectsByType<OrderCounter>(FindObjectsSortMode.None);
+        foreach (var orderCounter in allOrderCounters)
+        {
+            if (orderCounter && !_orderCounters.Contains(orderCounter))
+            {
+                _orderCounters.Add(orderCounter);
+            }
+        }
     }
 
     private void OnDrawGizmos()

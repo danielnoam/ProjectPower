@@ -22,21 +22,47 @@ public class SOOrderCombinations : ScriptableObject
         {27, 20},
     };
 
-    public int OrderReward => orderReward;
+    [SerializeField] private bool allowMultipleNumbers = true;
+    [SerializeField, MinMaxRange(1,4)] private RangedInt multipleOrderRange = new RangedInt(2, 3);
     
-    public Dictionary<int, float> GetCombinations()
+    
+    
+    public int OrderReward => orderReward;
+    public bool AllowMultipleNumbers => allowMultipleNumbers;
+    public RangedInt MultipleOrderRange => multipleOrderRange;
+    
+    
+    public (int key, float value) GetOrder(Dictionary<PowerMachine, int> availablePowerMachines, Difficulty difficulty)
     {
-        return orderCombinations.ToDictionary(pair => pair.Key, pair => pair.Value);
+        
+        var validCombinations = orderCombinations.ToDictionary(pair => pair.Key, pair => pair.Value).Where(kvp => CanAchieveWithAvailableMachines(kvp.Key, availablePowerMachines)).ToList();
+        if (validCombinations.Count == 0)
+        {
+            var keys = orderCombinations.ToDictionary(pair => pair.Key, pair => pair.Value).Keys.ToList();
+            int randomIndex = Random.Range(0, keys.Count);
+            int key = keys[randomIndex];
+            float value = orderCombinations.ToDictionary(pair => pair.Key, pair => pair.Value)[key];
+            return (key, value);
+        }
+        
+        int validRandomIndex = Random.Range(0, validCombinations.Count);
+        var selectedCombination = validCombinations[validRandomIndex];
+        return (selectedCombination.Key, selectedCombination.Value);
+    }
+    
+    
+    private bool CanAchieveWithAvailableMachines(int targetNumber, Dictionary<PowerMachine, int> availablePowerMachines)
+    {
+        foreach (var machine in availablePowerMachines.Keys)
+        {
+            if (machine.CanProduceNumber(targetNumber))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public (int, float) GeRandomOrder()
-    {
-        if (orderCombinations.Count == 0) return (0, 0);
-        
-        var randomIndex = Random.Range(0, orderCombinations.Count);
-        var randomPair = orderCombinations.ElementAt(randomIndex);
-        return (randomPair.Key, randomPair.Value);
-    }
 
 
 

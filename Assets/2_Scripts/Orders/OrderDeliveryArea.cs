@@ -9,7 +9,7 @@ public class OrderDeliveryArea : MonoBehaviour
     [Header("Delivery Area")]
     [SerializeField, ReadOnly] private List<NumberdPackage> packagesInArea = new List<NumberdPackage>();
     
-    public event Action<NumberdPackage> OnPackageEnteredArea; 
+    public event Action<List<NumberdPackage>> OnPackageEnteredArea; 
     
 
     private void OnTriggerEnter(Collider other)
@@ -34,7 +34,7 @@ public class OrderDeliveryArea : MonoBehaviour
         if (package && !packagesInArea.Contains(package))
         {
             packagesInArea.Add(package);
-            OnPackageEnteredArea?.Invoke(package);
+            OnPackageEnteredArea?.Invoke(packagesInArea);
         }
     }
 
