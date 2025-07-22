@@ -30,8 +30,12 @@ public class PackageSpawner : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.Instance.OnDayStarted += OnDayStarted;
-
+        if (GameManager.Instance)
+        {
+            GameManager.Instance.OnDayStarted += OnDayStarted;
+            GameManager.Instance.OnDayFinished += OnDayFinished;
+        }
+        
         foreach (var orderCounter in _orderCounters)
         {
             orderCounter.OnOrderFinishedEvent += OnOrderFinished;
@@ -47,7 +51,11 @@ public class PackageSpawner : MonoBehaviour
     
     private void OnDisable()
     {
-        GameManager.Instance.OnDayStarted -= OnDayStarted;
+        if (GameManager.Instance)
+        {
+            GameManager.Instance.OnDayStarted -= OnDayStarted;
+            GameManager.Instance.OnDayFinished -= OnDayFinished;
+        }
         
         foreach (var orderCounter in _orderCounters)
         {
@@ -63,7 +71,7 @@ public class PackageSpawner : MonoBehaviour
     }
     
     
-    private void OnDayStarted(int day)
+    private void OnDayStarted(SODayData dayData)
     {
         if (_packagesInGame.Count < initialPackageCount)
         {
@@ -74,6 +82,18 @@ public class PackageSpawner : MonoBehaviour
             }
         }
     }
+    
+    private void OnDayFinished(SODayData dayData)
+    {
+        if (_spawnCoroutine != null)
+        {
+            StopCoroutine(_spawnCoroutine);
+            _spawnCoroutine = null;
+        }
+        
+        _packagesInGame.Clear();
+    }
+    
     
 
     private void OnOrderStarted(Order order)
@@ -166,10 +186,6 @@ public class PackageSpawner : MonoBehaviour
                     Debug.LogWarning($"Cannot produce missing number {missingNumber} with available machines!");
                 }
             }
-        }
-        else
-        {
-            Debug.Log("All needed numbers can be fulfilled with existing packages!");
         }
     }
     

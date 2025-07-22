@@ -11,20 +11,10 @@ using Random = UnityEngine.Random;
 public class SOGameSettings : ScriptableObject
 {
     [Header("Package Settings")]
-    [SerializeField] private int smallPackageMaxNumber = 500;
-    [SerializeField] private int mediumPackageMaxNumber = 1000;
-    [SerializeField, Min(20)] private int maxPackagesInGame = 80;
+    [SerializeField] private int smallPackageMaxNumber = 255;
+    [SerializeField] private int mediumPackageMaxNumber = 1023;
+    [SerializeField, Min(20)] private int maxPackagesInGame = 20;
     [SerializeField, MinMaxRange(2,9)] private RangedInt packageNumbersRange = new RangedInt(2, 9);
-    
-    
-    [Header("Order Settings")]
-    [SerializeField] private int ordersNeededToChangeDifficulty = 7;
-    [SerializeField] private int ordersNeededToCompleteDay = 30;
-    [SerializeField] private int orderFailuresToFailDay = 15;
-    [SerializeField, MinMaxRange(1,10)] private RangedFloat timeBetweenOrders = new RangedFloat(5f, 10f);
-    [SerializeField] private SOOrderCombinations easyOrderCombinations;
-    [SerializeField] private SOOrderCombinations mediumOrderCombinations;
-    [SerializeField] private SOOrderCombinations hardOrderCombinations;
     
     [Header("Interaction Settings")]
     [SerializeField, Range(0,10)] private float outlineWidth = 5f;
@@ -36,24 +26,18 @@ public class SOGameSettings : ScriptableObject
     [SerializeField] private NumberdPackage mediumPackagePrefab;
     [SerializeField] private NumberdPackage largePackagePrefab;
     [SerializeField] private GameObject[] clientsPrefabs;
+    [SerializeField] private SODayData[] dayData = Array.Empty<SODayData>();
     
     
     public int MaxPackagesInGame => maxPackagesInGame;
-    public RangedFloat TimeBetweenOrders => timeBetweenOrders;
+
     public RangedInt PackageNumbersRange => packageNumbersRange;
-    public int OrdersNeededToChangeDifficulty => ordersNeededToChangeDifficulty;
-    public int OrdersNeededToCompleteDay => ordersNeededToCompleteDay;
-    public int OrderFailuresToFailDay => orderFailuresToFailDay;
+
     public float OutlineWidth => outlineWidth;
     public Color OutlineColor => outlineColor;
     public Outline.Mode OutlineMode => outlineMode;
 
-
-    private void OnEnable()
-    {
-        PrimeTweenConfig.warnEndValueEqualsCurrent = false;
-        Debug.Log("Game Settings Initialized");
-    }
+    
 
     public NumberdPackage GetPackagePrefabByNumber(int number)
     {
@@ -61,14 +45,14 @@ public class SOGameSettings : ScriptableObject
         {
             return smallPackagePrefab;
         }
-        else if (number <= mediumPackageMaxNumber)
+        
+        if (number <= mediumPackageMaxNumber)
         {
             return mediumPackagePrefab;
         }
-        else
-        {
-            return largePackagePrefab;
-        }
+         
+         
+        return largePackagePrefab;
     }
     
     
@@ -82,38 +66,25 @@ public class SOGameSettings : ScriptableObject
         int randomIndex = Random.Range(0, clientsPrefabs.Length);
         return clientsPrefabs[randomIndex];
     }
-    
 
-    public SOOrderCombinations GetOrderCombinations(Difficulty difficulty)
+    public SODayData GetDayData(int dayNumber)
     {
-        var orderCombinations = easyOrderCombinations;
-        switch (difficulty)
+        dayNumber -= 1;
+        
+        if (dayNumber < 0)
         {
-            case Difficulty.Medium:
-                orderCombinations = mediumOrderCombinations;
-                break;
-            case Difficulty.Hard:
-                orderCombinations = hardOrderCombinations;
-                break;
+            Debug.LogError("Invalid day index");
+            return null;
         }
 
-        return orderCombinations;
-    }
-    
-
-
-    public int GetOrderWorth(Difficulty difficulty)
-    {
-        switch (difficulty)
+        if (dayNumber >= dayData.Length)
         {
-            case Difficulty.Easy:
-                return easyOrderCombinations.OrderReward;
-            case Difficulty.Medium:
-                return mediumOrderCombinations.OrderReward;
-            case Difficulty.Hard:
-                return hardOrderCombinations.OrderReward;
-            default:
-                return easyOrderCombinations.OrderReward;
+            return dayData.LastOrDefault();
         }
+
+        return dayData[dayNumber];
+        
     }
+
+
 }

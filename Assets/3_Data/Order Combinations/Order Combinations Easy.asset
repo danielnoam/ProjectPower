@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 149265de5f6f4644a43625511a3f9e75, type: 3}
   m_Name: Order Combinations Easy
   m_EditorClassIdentifier: 
-  orderReward: 10
+  orderReward: 5
   orderCombinations:
     _serializedList:
     - Key: 4

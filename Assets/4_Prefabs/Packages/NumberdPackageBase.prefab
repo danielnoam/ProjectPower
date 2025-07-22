@@ -232,8 +232,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfa9dd4922ed4535a40b9f37e7194469, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectWeight: 7
-  heldFollowForce: 150
+  objectWeight: 1
+  heldFollowForce: 550
   rigidBody: {fileID: 1402751892165704463}
   interactable: {fileID: 7087478354744175922}
   audioSource: {fileID: 5558961000962217231}

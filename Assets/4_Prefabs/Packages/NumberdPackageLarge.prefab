@@ -20,6 +20,10 @@ PrefabInstance:
       propertyPath: m_Size.z
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 368692623398995654, guid: 3d5b6ba345711fd4c9c64282c4f6d4a7, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: 972ad1d6dd730b94891a8c495e0c5c64, type: 2}
     - target: {fileID: 717233103927739715, guid: 3d5b6ba345711fd4c9c64282c4f6d4a7, type: 3}
       propertyPath: m_Name
       value: NumberdPackageLarge
@@ -31,6 +35,14 @@ PrefabInstance:
     - target: {fileID: 1180137572044483106, guid: 3d5b6ba345711fd4c9c64282c4f6d4a7, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -50.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1900888597752985481, guid: 3d5b6ba345711fd4c9c64282c4f6d4a7, type: 3}
+      propertyPath: objectWeight
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1900888597752985481, guid: 3d5b6ba345711fd4c9c64282c4f6d4a7, type: 3}
+      propertyPath: heldFollowForce
+      value: 600
       objectReference: {fileID: 0}
     - target: {fileID: 3005518945953380465, guid: 3d5b6ba345711fd4c9c64282c4f6d4a7, type: 3}
       propertyPath: m_LocalPosition.x

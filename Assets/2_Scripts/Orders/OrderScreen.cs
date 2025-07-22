@@ -106,18 +106,9 @@ public class OrderScreen : MonoBehaviour
 
         if (order.NumbersNeeded.Count > 1)
         {
-            for (var index = 0; index < order.NumbersNeeded.Count; index++)
+            foreach (var number in order.NumbersNeeded)
             {
-                var number = order.NumbersNeeded[index];
-                
-                if (index == order.NumbersNeeded.Count - 1)
-                {
-                    packageNumber.text += $"{number}";
-                }
-                else
-                {
-                    packageNumber.text += $"{number}, ";
-                }
+                packageNumber.text += $"{number}\n";
             }
         }
         else

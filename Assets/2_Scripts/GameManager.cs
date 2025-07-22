@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DNExtensions;
 using DNExtensions.VFXManager;
+using PrimeTween;
 using UnityEngine;
 
 [DefaultExecutionOrder(-1)]
@@ -27,19 +28,23 @@ public class GameManager : MonoBehaviour
     [SerializeField, ReadOnly] private int currentDifficultyCompletedOrders;
     [SerializeField, ReadOnly] private int totalDayCompletedOrders;
     [SerializeField, ReadOnly] private int totalDayFailedOrders;
-
+    [SerializeField, ReadOnly] private SODayData currentDayData;
     
     
     private readonly List<OrderCounter> _orderCounters = new List<OrderCounter>();
     private readonly List<PackageSpawner> _packageSpawners = new List<PackageSpawner>();
     private readonly Dictionary<PowerMachine, int> _powerMachines = new Dictionary<PowerMachine, int>();
     private int _currencyAtStartOfDay;
+
     
     public Dictionary<PowerMachine, int> PowerMachines => _powerMachines;
     public Difficulty GameDifficulty => currentDifficulty;
+    public SODayData CurrentDayData => currentDayData;
+    public int CurrenyDay => currentDay;
+    
     public event Action OnGameStarted;
-    public event Action<int> OnDayStarted; // day number
-    public event Action<int> OnDayFinished; // day number
+    public event Action<SODayData> OnDayStarted; // day number
+    public event Action<SODayData> OnDayFinished; // day number
     public event Action<int> OnCurrencyChanged; // current currency amount
     public event Action<int> OnOrderCompleted; // total completed orders in the current day
     public event Action<int> OnOrderFailed; // total failed orders in the current day
@@ -56,11 +61,13 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        PrimeTweenConfig.warnEndValueEqualsCurrent = false;
+        
         FindOrderCounters();
         FindPackageSpawners();
         FindPowerMachines();
         
-        currentDay = 1;
+        currentDay = 0;
         currentCurrency = 0;
         lifetimeCompletedOrders = 0;
         lifetimeFailedOrders = 0;
@@ -106,13 +113,13 @@ public class GameManager : MonoBehaviour
             OnCurrencyChanged?.Invoke(currentCurrency);
             OnOrderCompleted?.Invoke(totalDayCompletedOrders);
             
-            if (totalDayCompletedOrders >= gameSettings.OrdersNeededToCompleteDay)
+            if (totalDayCompletedOrders >= currentDayData.OrdersNeededToCompleteDay)
             {
                 FinishDay(true);
                 return;
             }
 
-            if (currentDifficultyCompletedOrders >= gameSettings.OrdersNeededToChangeDifficulty)
+            if (currentDifficultyCompletedOrders >= currentDayData.OrdersNeededToChangeDifficulty)
             {
                 switch (currentDifficulty)
                 {
@@ -133,7 +140,7 @@ public class GameManager : MonoBehaviour
             OnOrderFailed?.Invoke(totalDayFailedOrders);
 
             
-            if (totalDayFailedOrders >= gameSettings.OrderFailuresToFailDay)
+            if (totalDayFailedOrders >= currentDayData.OrderFailuresToFailDay)
             {
                 FinishDay(false);
                 return;
@@ -146,38 +153,40 @@ public class GameManager : MonoBehaviour
 
     private void FinishDay(bool success)
     {
+        if (!currentDayData) return;
+        
         if (success)
         {
-            currentDay++;
             lifetimeCompletedOrders += totalDayCompletedOrders;
             lifetimeFailedOrders += totalDayFailedOrders;
-            OnDayFinished?.Invoke(currentDay);
+            OnDayFinished?.Invoke(currentDayData);
+            currentDayData = null;
         }
         else
         {
-            currentDifficulty = Difficulty.Easy;
-            currentDifficultyCompletedOrders = 0;
-            totalDayCompletedOrders = 0;
-            totalDayFailedOrders = 0;
             currentCurrency = _currencyAtStartOfDay; 
             lifetimeFailedOrders += totalDayFailedOrders;
-            OnDayFinished?.Invoke(currentDay);
+            OnCurrencyChanged?.Invoke(currentCurrency);
+            OnDayFinished?.Invoke(currentDayData);
+            currentDayData = null;
         }
 
     }
     
 
-    public void StartDay()
+    public void StartNewDay()
     {
         if (_orderCounters.Count == 0) return;
-        
+
+        currentDay += 1;
+        currentDayData = gameSettings.GetDayData(currentDay);
         currentDifficulty = Difficulty.Easy;
+        _currencyAtStartOfDay = currentCurrency;
         currentDifficultyCompletedOrders = 0;
         totalDayCompletedOrders = 0;
         totalDayFailedOrders = 0;
         
-        
-        OnDayStarted?.Invoke(currentDay);
+        OnDayStarted?.Invoke(currentDayData);
     }
     
     
@@ -227,6 +236,12 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    [Button]
+    private void ForceCompleteDay()
+    {
+        FinishDay(true);
     }
 
 

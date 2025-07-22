@@ -10,23 +10,38 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 149265de5f6f4644a43625511a3f9e75, type: 3}
-  m_Name: Medium Order Combinations
+  m_Name: Order Combinations Super Easy
   m_EditorClassIdentifier: 
+  orderReward: 3
   orderCombinations:
     _serializedList:
     - Key: 4
-      Value: 20
-    - Key: 9
-      Value: 20
-    - Key: 16
-      Value: 20
-    - Key: 25
-      Value: 20
-    - Key: 36
-      Value: 20
-    - Key: 49
-      Value: 20
+      Value: 35
     - Key: 8
-      Value: 20
+      Value: 35
+    - Key: 9
+      Value: 35
+    - Key: 16
+      Value: 35
+    - Key: 25
+      Value: 35
     - Key: 27
-      Value: 20
+      Value: 35
+    - Key: 32
+      Value: 35
+    - Key: 36
+      Value: 40
+    - Key: 49
+      Value: 40
+    - Key: 64
+      Value: 45
+    - Key: 81
+      Value: 50
+    - Key: 125
+      Value: 60
+    - Key: 128
+      Value: 60
+  allowMultipleNumbers: 0
+  multipleOrderRange:
+    minValue: 1
+    maxValue: 2

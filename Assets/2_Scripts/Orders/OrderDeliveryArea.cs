@@ -11,6 +11,28 @@ public class OrderDeliveryArea : MonoBehaviour
     
     public event Action<List<NumberdPackage>> OnPackageEnteredArea; 
     
+    
+    private void OnEnable()
+    {
+        if (GameManager.Instance)
+        {
+            GameManager.Instance.OnDayFinished += OnDayFinished;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (GameManager.Instance)
+        {
+            GameManager.Instance.OnDayFinished -= OnDayFinished;
+        }
+    }
+
+    private void OnDayFinished(SODayData dayData)
+    {
+        packagesInArea.Clear();
+    }
+
 
     private void OnTriggerEnter(Collider other)
     {

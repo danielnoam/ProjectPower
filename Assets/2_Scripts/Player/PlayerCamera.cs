@@ -8,14 +8,16 @@ using UnityEngine.InputSystem;
 public class PlayerCamera : MonoBehaviour
 {
     [Header("Settings")]
-    [SerializeField] [Range(0,0.1f)] private float lookSensitivity = 0.05f;
-    [SerializeField] [Range(0,0.1f)] private float lookSmoothing = 0.05f;
+    [SerializeField] [Range(0,0.1f)] private float lookSensitivity = 0.04f;
+    [SerializeField] [Range(0,0.1f)] private float lookSmoothing;
     [SerializeField] private Vector2 verticalAxisRange = new Vector2(-90, 90);
-    [SerializeField] private float baseFov = 60f;
-    [SerializeField] private float runFovMultiplier = 1.3f;
-    [SerializeField] private float dashFovMultiplier = 1.5f;
     [SerializeField] private bool invertHorizontal = false;
     [SerializeField] private bool invertVertical = false;
+    
+    [Header("FOV")]
+    [SerializeField] private float baseFov = 60f;
+    [SerializeField] private float runFovMultiplier = 1.3f;
+    [SerializeField] private float fovChangeSmoothing = 5;
     
     [Header("References")]
     [SerializeField] private PlayerMovement playerMovement;
@@ -30,13 +32,20 @@ public class PlayerCamera : MonoBehaviour
     private float _targetTiltAngle;
     private Vector2 _rotationVelocity;
     
+    
+    private void OnValidate()
+    {
+        if (!cam) return;
+        cam.Lens.FieldOfView = baseFov;
+    }
+    
+    
     private void Awake()
     {
         _currentPanAngle = transform.eulerAngles.y;
         _currentTiltAngle = playerHead.localEulerAngles.x;
         _targetPanAngle = _currentPanAngle;
         _targetTiltAngle = _currentTiltAngle;
-        SetupFov();
     }
     
     private void OnEnable()
@@ -95,24 +104,14 @@ public class PlayerCamera : MonoBehaviour
         if (!cam) return;
         
         float targetFov = baseFov;
-        if (playerMovement.isDashing)
-        {
-            targetFov *= dashFovMultiplier;
-        }
-        else if (playerMovement.isRunning)
+        if (playerMovement.isRunning)
         {
             targetFov *= runFovMultiplier;
         }
         
-        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, targetFov, Time.deltaTime * 10f);
+        cam.Lens.FieldOfView = Mathf.Lerp(cam.Lens.FieldOfView, targetFov, Time.deltaTime * fovChangeSmoothing);
     }
     
-
-    private void SetupFov()
-    {
-        if (!cam) return;
-        cam.Lens.FieldOfView = baseFov;
-    }
     
     public Vector3 GetMovementDirection()
     {
@@ -125,10 +124,4 @@ public class PlayerCamera : MonoBehaviour
         return Quaternion.Euler(_currentTiltAngle, _currentPanAngle, 0) * Vector3.forward;
     }
     
-#if UNITY_EDITOR
-    private void OnValidate()
-    {
-        SetupFov();
-    }
-#endif
 }

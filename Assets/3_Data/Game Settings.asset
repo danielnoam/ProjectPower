@@ -12,20 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e58ea0f6fe44314ab82f32a72141266, type: 3}
   m_Name: Game Settings
   m_EditorClassIdentifier: 
-  smallPackageMaxNumber: 500
-  mediumPackageMaxNumber: 1000
-  maxPackagesInGame: 25
+  smallPackageMaxNumber: 255
+  mediumPackageMaxNumber: 1023
+  maxPackagesInGame: 20
   packageNumbersRange:
     minValue: 2
     maxValue: 9
-  ordersNeededToChangeDifficulty: 7
-  ordersNeededToCompleteGame: 30
-  timeBetweenOrders:
-    minValue: 5
-    maxValue: 10
-  easyOrderCombinations: {fileID: 11400000, guid: 8304e2c1fd127f44d9b6cd9357bdce44, type: 2}
-  mediumOrderCombinations: {fileID: 11400000, guid: f0dd1731b1a98284baf682a44c63de46, type: 2}
-  hardOrderCombinations: {fileID: 11400000, guid: 865972ca443ad3f40b2f47e961a40cdb, type: 2}
   outlineWidth: 10
   outlineColor: {r: 0.3921569, g: 0.5843138, b: 0.9294118, a: 1}
   outlineMode: 0
@@ -40,3 +32,11 @@ MonoBehaviour:
   - {fileID: 5401312646505792672, guid: f8e0f46f472958944a5a8c6e473b3fae, type: 3}
   - {fileID: 5401312646505792672, guid: ee95d36617dc0184eb60052c0bad4581, type: 3}
   - {fileID: 5401312646505792672, guid: 2dd4a41e3b57e104ab2177ec3e690687, type: 3}
+  dayData:
+  - {fileID: 11400000, guid: 75024733ef39b524bb898c3a3311fc74, type: 2}
+  - {fileID: 11400000, guid: 19aeda5ff262da249a063b052009e950, type: 2}
+  - {fileID: 11400000, guid: 1e2fd4ade9a8eb54b881ddc666dccf49, type: 2}
+  - {fileID: 11400000, guid: 6ce19fc43e168f54ead15a026dfd7e79, type: 2}
+  - {fileID: 11400000, guid: fc901c3af2ca1d64fb094f10bbcebc56, type: 2}
+  - {fileID: 11400000, guid: 372a83103eabb6c4992dd57fc7228f61, type: 2}
+  - {fileID: 11400000, guid: 53e069e4a65c0aa42a578f3997d439d1, type: 2}

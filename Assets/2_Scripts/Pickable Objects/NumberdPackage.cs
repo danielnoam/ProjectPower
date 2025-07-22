@@ -9,7 +9,7 @@ using UnityEngine;
 public class NumberdPackage : PickableObject
 {
     [Header("Package Settings")]
-    [SerializeField, Min(2)] private int number = 2;
+    [SerializeField] private int number = 2;
     
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
@@ -23,7 +23,12 @@ public class NumberdPackage : PickableObject
 
     private void OnValidate()
     {
-        number = Mathf.Clamp(number, gameSettings.PackageNumbersRange.minValue, gameSettings.PackageNumbersRange.maxValue);
+
+        if (gameSettings)
+        {
+            number = Mathf.Clamp(number, gameSettings.PackageNumbersRange.minValue, 9999999);
+        }
+        
         if (numberTexts == null || numberTexts.Length == 0)
         {
             numberTexts = GetComponentsInChildren<TextMeshProUGUI>();
@@ -35,6 +40,33 @@ public class NumberdPackage : PickableObject
     {
         packageLight.enabled = false;
     }
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        
+        if (GameManager.Instance)
+        {
+            GameManager.Instance.OnDayFinished += OnDayFinished;
+        }
+    }
+
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+
+        if (GameManager.Instance)
+        {
+            GameManager.Instance.OnDayFinished -= OnDayFinished;
+        }
+    }
+    
+    private void OnDayFinished(SODayData dayData)
+    {
+        IntoTheAbyss();
+    }
+    
+    
     
 
     private void UpdatePackageVisuals()
@@ -87,7 +119,7 @@ public class NumberdPackage : PickableObject
     
     public void SetNumber(int number)
     {
-        this.number = Mathf.Max(2, number);
+        this.number = Mathf.Clamp(number, gameSettings.PackageNumbersRange.minValue, 9999999);
         UpdatePackageVisuals();
     }
     

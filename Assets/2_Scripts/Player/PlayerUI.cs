@@ -11,7 +11,6 @@ public class PlayerUI : MonoBehaviour
     [SerializeField] private float uiToggleStartDelay = 2f;
     
     [Header("References")]
-    [SerializeField] private SOGameSettings gameSettings;
     [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private CanvasGroup uiCanvasGroup;
     [SerializeField] private CanvasGroup currencyCanvasGroup;
@@ -24,22 +23,17 @@ public class PlayerUI : MonoBehaviour
     private Sequence _uiSequence;
     private Sequence _currencySequence;
     private Sequence _ordersSequence;
-    
+    private SODayData _currentDayData;
 
     private void Awake()
     {
-        UpdateCurrency(0);
-        UpdateOrdersCompleted(0);
-        UpdateOrdersFailed(0);
+        currencyText.text = "";
+        ordersCompletedText.text = "";
+        ordersFailedText.text = "";
+        
         ToggleUI(false,false);
         ToggleCurrencyUI(false, false);
         ToggleOrdersUI(false, false);
-    }
-
-    private void Start()
-    {
-        ToggleUI(true, true, uiToggleStartDelay);
-        ToggleCurrencyUI(true, false);
     }
 
 
@@ -52,9 +46,12 @@ public class PlayerUI : MonoBehaviour
             GameManager.Instance.OnCurrencyChanged += UpdateCurrency;
             GameManager.Instance.OnOrderCompleted += UpdateOrdersCompleted;
             GameManager.Instance.OnOrderFailed += UpdateOrdersFailed;
+            GameManager.Instance.OnGameStarted += OnGameStarted;
         }
     }
-    
+
+
+
     private void OnDisable()
     {
         if (GameManager.Instance)
@@ -64,21 +61,29 @@ public class PlayerUI : MonoBehaviour
             GameManager.Instance.OnCurrencyChanged -= UpdateCurrency;
             GameManager.Instance.OnOrderCompleted -= UpdateOrdersCompleted;
             GameManager.Instance.OnOrderFailed -= UpdateOrdersFailed;
+            GameManager.Instance.OnGameStarted -= OnGameStarted;
         }
     }
     
-    private void OnDayStarted(int day)
+    private void OnGameStarted()
     {
-        UpdateDay(day);
-        UpdateCurrency(0);
+        ToggleUI(true, true, uiToggleStartDelay);
+        ToggleCurrencyUI(true, false);
+    }
+    
+    private void OnDayStarted(SODayData dayData)
+    {
+        _currentDayData = dayData;
+        UpdateDay(GameManager.Instance ? GameManager.Instance.CurrenyDay : 0);
         UpdateOrdersCompleted(0);
         UpdateOrdersFailed(0);
         ToggleCurrencyUI(true);
         ToggleOrdersUI(true);
     }
     
-    private void OnDayFinished(int day)
+    private void OnDayFinished(SODayData dayData)
     {
+        _currentDayData = null;
         ToggleCurrencyUI(true);
         ToggleOrdersUI(false);
     }
@@ -145,16 +150,16 @@ public class PlayerUI : MonoBehaviour
     
     private void UpdateOrdersCompleted(int amount)
     {
-        if (!ordersCompletedText) return;
+        if (!ordersCompletedText || !_currentDayData) return;
 
-        ordersCompletedText.text = $"{amount}/{gameSettings.OrdersNeededToCompleteDay}";
+        ordersCompletedText.text = $"{amount}/{_currentDayData.OrdersNeededToCompleteDay}";
     }
     
     private void UpdateOrdersFailed(int amount)
     {
-        if (!ordersFailedText) return;
+        if (!ordersFailedText || !_currentDayData) return;
 
-        ordersFailedText.text = $"{amount}/{gameSettings.OrderFailuresToFailDay}";
+        ordersFailedText.text = $"{amount}/{_currentDayData.OrderFailuresToFailDay}";
     }
 
     private void UpdateDay(int day)

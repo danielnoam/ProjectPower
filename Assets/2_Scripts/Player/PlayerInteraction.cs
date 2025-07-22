@@ -1,5 +1,6 @@
 using System;
 using DNExtensions;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,14 +14,16 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private float interactionRadius = 3f;
     [SerializeField] private LayerMask interactionLayer;
     
-    [Header("Throw Settings")]
+    [Header("Held Object Settings")]
+    [SerializeField] private float autoDropYOffset = 1f;
     [SerializeField, MinMaxRange(0,30)] private RangedFloat throwForceRange = new RangedFloat(5f, 15f);
     [SerializeField, MinMaxRange(1f,4f)] private RangedFloat throwHeldRange = new RangedFloat(1f, 4f);
     
     [Header("References")]
     [SerializeField] private PlayerCamera playerCamera;
-    [SerializeField] private AudioSource audioSource;
     [SerializeField] private PlayerInput playerInput;
+    [SerializeField] private PlayerMovement playerMovement;
+    [SerializeField] private AudioSource audioSource;
     [SerializeField] private Transform holdPosition;
     [SerializeField] private Transform interactionPosition;
     
@@ -49,6 +52,7 @@ public class PlayerInteraction : MonoBehaviour
             _heldObject = value;
         }
     }
+    
 
     private void OnEnable()
     {
@@ -95,11 +99,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (context.performed)
         {
-            if (_heldObject)
-            {
-                _heldObject.Drop();
-                _heldObject = null;
-            }
+            DropHeldObject();
         }
     }
 
@@ -111,13 +111,32 @@ public class PlayerInteraction : MonoBehaviour
     private void FixedUpdate()
     {
         CheckForInteractable();
+        CheckHeldObjectHeight();
     }
 
     private void ThrowHeldObject()
     {
+        if (!_heldObject) return;
+        
         var force = throwForceRange.Lerp(_throwInputHoldTime / throwHeldRange.maxValue);
-        _heldObject?.Throw(playerCamera.GetAimDirection(), force);
+        _heldObject.Throw(playerCamera.GetAimDirection(), force);
         _heldObject = null;
+    }
+
+    private void DropHeldObject()
+    {
+        _heldObject?.Drop();
+        _heldObject = null;
+    }
+
+    private void CheckHeldObjectHeight()
+    {
+        if (!_heldObject) return;
+        
+        if (_heldObject.transform.position.y < (transform.position.y - autoDropYOffset))
+        {
+            DropHeldObject();
+        }
     }
 
     private void UpdateHeldInputTime()
@@ -149,7 +168,6 @@ public class PlayerInteraction : MonoBehaviour
                 break; 
             }
         }
-    
 
         if (foundInteractable != _closestInteractable)
         {
@@ -161,6 +179,8 @@ public class PlayerInteraction : MonoBehaviour
             if (_closestInteractable) _closestInteractable.Highlight();
         }
     }
+    
+#if UNITY_EDITOR
     
     private void OnDrawGizmos()
     {
@@ -176,4 +196,14 @@ public class PlayerInteraction : MonoBehaviour
             Gizmos.DrawWireSphere(holdPosition.position, 0.3f);
         }
     }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position.RemoveY(autoDropYOffset), 0.1f);
+        Handles.Label(transform.position.RemoveY(autoDropYOffset), "Held object auto drop point");
+    }
+#endif
+    
+
 }

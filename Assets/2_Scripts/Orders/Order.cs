@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 public class Order
 {
-    public readonly List<int> NumbersNeeded;
-    public float TimeLeft;
+    public readonly List<int> NumbersNeeded = new List<int>();
+    public float TimeLeft = 0;
     public readonly int Worth;
     
     
@@ -12,12 +12,10 @@ public class Order
     {
 
         if (!GameManager.Instance || !gameSettings) return;
-        
-        var orderCombinations = gameSettings.GetOrderCombinations(difficulty);
-        
-        NumbersNeeded = new List<int>();
-        TimeLeft = 0;
-        Worth = gameSettings.GetOrderWorth(difficulty);
+
+        var dayData = GameManager.Instance.CurrentDayData;
+        var orderCombinations = dayData.GetOrderCombinations(difficulty);
+        Worth = dayData.GetOrderWorth(difficulty);
         
 
         if (orderCombinations.AllowMultipleNumbers)
@@ -29,14 +27,14 @@ public class Order
                 TimeLeft += order.value;
             }
             
-            Worth = gameSettings.GetOrderWorth(difficulty) * NumbersNeeded.Count;
+            Worth = dayData.GetOrderWorth(difficulty) * NumbersNeeded.Count;
         }
         else
         {
             var order = orderCombinations.GetOrder(GameManager.Instance.PowerMachines, difficulty);
             NumbersNeeded.Add(order.key);
             TimeLeft = order.value;
-            Worth = gameSettings.GetOrderWorth(difficulty);
+            Worth = dayData.GetOrderWorth(difficulty);
             
         }
         
@@ -74,5 +72,6 @@ public class Order
     
         return true;
     }
+
 
 }

@@ -60,11 +60,11 @@ public class StartDayLever : MonoBehaviour
             .OnComplete(() =>
             {
                 _isLeverPulled = true;
-                GameManager.Instance.StartDay();
+                GameManager.Instance.StartNewDay();
             });
     }
     
-    private void ReleaseLever(int day)
+    private void ReleaseLever(SODayData dayData)
     {
         if (_leverSequence.isAlive) _leverSequence.Stop();
 

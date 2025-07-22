@@ -27,7 +27,7 @@ public class OrderCounter : MonoBehaviour
     private Order _currentOrder;
     private GameObject _currentClient;
     private bool _isTakingOrders;
-    
+    private SODayData _currentDayData;
 
     public event Action<Order> OnOrderStartedEvent;
     public event Action<bool, List<NumberdPackage>, int> OnOrderFinishedEvent;
@@ -64,14 +64,18 @@ public class OrderCounter : MonoBehaviour
         UpdateOrderTimeLeft();
     }
     
-    private void OnDayFinished(int day)
+    private void OnDayFinished(SODayData dayData)
     {
+        _currentDayData = null;
         StopTakingOrders();
     }
     
-    private void OnDayStarted(int day)
+    private void OnDayStarted(SODayData dayData)
     {
-        StartTakingOrders(gameSettings.TimeBetweenOrders.RandomValue);
+        if (!dayData) return;
+        
+        _currentDayData = dayData;
+        StartTakingOrders(_currentDayData.TimeBetweenOrders.minValue);
     }
 
     
@@ -93,9 +97,8 @@ public class OrderCounter : MonoBehaviour
             }
             OnOrderFinishedEvent?.Invoke(true, usedPackages, _currentOrder.Worth);
             _currentOrder = null;
-
             
-            TakeAnotherOrder(gameSettings.TimeBetweenOrders.RandomValue);
+            if ( !_currentDayData) TakeAnotherOrder(_currentDayData.TimeBetweenOrders.RandomValue);
         }
     }
     
@@ -128,7 +131,7 @@ public class OrderCounter : MonoBehaviour
     [Button]
     private void StartTakingOrders(float time = 0.1f)
     {
-        if (!gameSettings || _isTakingOrders) return;
+        if (_isTakingOrders) return;
         
         _isTakingOrders = true;
         
@@ -146,7 +149,7 @@ public class OrderCounter : MonoBehaviour
     [Button]
     private void StopTakingOrders()
     {
-        if (!gameSettings || !_isTakingOrders) return;
+        if (!_isTakingOrders) return;
         
         _isTakingOrders = false;
         
@@ -174,7 +177,7 @@ public class OrderCounter : MonoBehaviour
     
     private void TakeAnotherOrder(float time = 0.1f)
     {
-        if (!gameSettings || !_isTakingOrders || _currentOrder != null) return;
+        if (!_isTakingOrders || _currentOrder != null) return;
         
         
         if (_startOrderCoroutine != null)
@@ -198,5 +201,6 @@ public class OrderCounter : MonoBehaviour
         
         TakeAnotherOrder();
     }
+    
     
 }

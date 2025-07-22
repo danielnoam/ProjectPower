@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 149265de5f6f4644a43625511a3f9e75, type: 3}
-  m_Name: Order Combinations Hard
+  m_Name: Order Combinations Very Hard
   m_EditorClassIdentifier: 
-  orderReward: 10
+  orderReward: 15
   orderCombinations:
     _serializedList:
     - Key: 4
