@@ -394,6 +394,7 @@ MonoBehaviour:
   availableUpgrades:
   - {fileID: 11400000, guid: 4bc75a48b661d8547aa957d64fdd5610, type: 2}
   - {fileID: 11400000, guid: dab76c3ef9c35d94696bdcba432fb5ca, type: 2}
+  - {fileID: 11400000, guid: 16c3c5818c392d74bbbe3e4dc1590d3c, type: 2}
   gameSettings: {fileID: 11400000, guid: 074051d85b369d84881ac98c8e460b48, type: 2}
   interactable: {fileID: 3420594317579856598}
   interactableTooltip: {fileID: 8553576856663194048}
@@ -409,8 +410,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6a740d98fd931b45baa411d908757c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  machineID: 363378
-  baseProcessDuration: 5
+  processingDuration: 0
+  baseProcessRange:
+    minValue: 2
+    maxValue: 7
   packageCheckRadius: 0.99
   packageLayerMask:
     serializedVersion: 2
@@ -431,6 +434,7 @@ MonoBehaviour:
   outputPosition: {fileID: 8370681345901575065}
   processingBar: {fileID: 5982916398493647263}
   processingBarCanvasGroup: {fileID: 5545526594477010860}
+  upgradable: {fileID: 5490466553916679260}
   processingSfx: {fileID: 11400000, guid: d057c6bc99898d344a8849596a5f9bef, type: 2}
   finishedProcessingSfx: {fileID: 0}
   recycleOutputNumber: 2

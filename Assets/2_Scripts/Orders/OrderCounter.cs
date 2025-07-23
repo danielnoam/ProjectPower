@@ -98,7 +98,7 @@ public class OrderCounter : MonoBehaviour
             OnOrderFinishedEvent?.Invoke(true, usedPackages, _currentOrder.Worth);
             _currentOrder = null;
             
-            if ( !_currentDayData) TakeAnotherOrder(_currentDayData.TimeBetweenOrders.RandomValue);
+            if (_currentDayData) TakeAnotherOrder(_currentDayData.TimeBetweenOrders.RandomValue);
         }
     }
     
@@ -175,7 +175,7 @@ public class OrderCounter : MonoBehaviour
     }
     
     
-    private void TakeAnotherOrder(float time = 0.1f)
+    private void TakeAnotherOrder(float time)
     {
         if (!_isTakingOrders || _currentOrder != null) return;
         
@@ -199,7 +199,7 @@ public class OrderCounter : MonoBehaviour
             _currentClient = null;
         }
         
-        TakeAnotherOrder();
+        if (_currentDayData) TakeAnotherOrder(_currentDayData.TimeBetweenOrders.RandomValue);
     }
     
     

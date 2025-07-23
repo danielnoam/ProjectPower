@@ -8,12 +8,13 @@ using UnityEngine.UI;
 
 [SelectionBase]
 [RequireComponent(typeof(AudioSource))]
+[RequireComponent(typeof(Upgradable))]
 public abstract class ProcessingMachineBase : MonoBehaviour
 {
-    [SerializeField] protected int machineID;
+    [ReadOnly,SerializeField] private float processingDuration;
     
     [Header("Base Machine Settings")] 
-    [SerializeField, Min(0.5f)] protected float baseProcessDuration = 3f;
+    [SerializeField, MinMaxRange(2f, 10f)] protected RangedFloat baseProcessRange  = new RangedFloat(5,5);
     [SerializeField, Min(0.1f)] private float packageCheckRadius = 0.55f;
     [SerializeField] protected LayerMask packageLayerMask;
 
@@ -32,6 +33,7 @@ public abstract class ProcessingMachineBase : MonoBehaviour
     [SerializeField] protected Transform outputPosition;
     [SerializeField] protected Image processingBar;
     [SerializeField] protected CanvasGroup processingBarCanvasGroup;
+    [SerializeField] protected Upgradable upgradable;
     [SerializeField] protected SOAudioEvent processingSfx;
     [SerializeField] protected SOAudioEvent finishedProcessingSfx;
     
@@ -45,7 +47,7 @@ public abstract class ProcessingMachineBase : MonoBehaviour
     private Vector3 _targetScale;
     private Sequence _processBarSequence;
     private float _processingBarFullWidth;
-    protected float ProcessingDuration;
+
     public event Action<NumberdPackage> OnPackageProcessed;
     public event Action<NumberdPackage> OnPackageSpawned;
     public event Action OnProcessingStarted;
@@ -55,7 +57,7 @@ public abstract class ProcessingMachineBase : MonoBehaviour
     
     protected virtual void Awake()
     {
-        ProcessingDuration = baseProcessDuration;
+        processingDuration = baseProcessRange.maxValue;
         _originalScale = machineGfx.localScale;
         _targetScale = _originalScale;
         processingBarCanvasGroup.alpha = 0f;
@@ -88,7 +90,7 @@ public abstract class ProcessingMachineBase : MonoBehaviour
             {
                 if (CanProcessPackage(package))
                 {
-                    StartProcessingPackage(package, ProcessingDuration);
+                    StartProcessingPackage(package);
                     break;
                 }
             }
@@ -96,7 +98,7 @@ public abstract class ProcessingMachineBase : MonoBehaviour
     }
     
     
-    private void StartProcessingPackage(NumberdPackage package, float processingDuration)
+    private void StartProcessingPackage(NumberdPackage package)
     {
         if (_isProcessing) return;
 
@@ -104,13 +106,13 @@ public abstract class ProcessingMachineBase : MonoBehaviour
         _processedOutputNum = CalculateOutput(package);
         
         if (_processCoroutine != null) StopCoroutine(_processCoroutine);
-        _processCoroutine = StartCoroutine(Process(processingDuration));
+        _processCoroutine = StartCoroutine(Process());
         
         OnPackageProcessed?.Invoke(package);
         package.IntoTheAbyss(packageCheckPosition.transform.position.RemoveY(0.5f));
     }
     
-    private IEnumerator Process(float processingDuration)
+    private IEnumerator Process()
     {
         OnProcessingStarted?.Invoke();
         
@@ -209,7 +211,12 @@ public abstract class ProcessingMachineBase : MonoBehaviour
         
         OnAfterSpawnPackage?.Invoke();
     }
-    
+
+    protected void LowerProcessDurationBy(float duration)
+    {
+        processingDuration -= duration;
+        processingDuration = Mathf.Clamp(processingDuration, baseProcessRange.minValue, baseProcessRange.maxValue);
+    }
     protected abstract bool CanProcessPackage(NumberdPackage package);
     public abstract int CalculateOutput(NumberdPackage package);
 

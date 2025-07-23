@@ -4,6 +4,7 @@ using DNExtensions;
 using UnityEngine;
 
 
+[DisallowMultipleComponent]
 public class Upgradable : MonoBehaviour
 {
         [Header("Upgrades")]
@@ -19,7 +20,7 @@ public class Upgradable : MonoBehaviour
         private SOUpgrade _nextUpgrade;
         private List<SOUpgrade> _boughtUpgrades;
         
-        public event Action OnUpgradesSetup;
+        public event Action<List<SOUpgrade>> OnUpgradesSetup;
         public event Action<SOUpgrade> OnUpgradeBought;
         public event Action<SOUpgrade> OnNextUpgradeChanged;
 
@@ -31,7 +32,7 @@ public class Upgradable : MonoBehaviour
                 }
         }
 
-        private void Awake()
+        private void Start()
         {
                 SetUpUpgrades();
         }
@@ -76,7 +77,7 @@ public class Upgradable : MonoBehaviour
                 }
                 else
                 {
-                        // interactableTooltip.PunchSize();
+                        interactableTooltip.Punch(Color.red);
                 }
         }
     
@@ -89,10 +90,6 @@ public class Upgradable : MonoBehaviour
         {
                 interactable?.SetCanInteract(false);
         }
-
-
-        
-        
         
         
         private void SetUpUpgrades()
@@ -100,21 +97,25 @@ public class Upgradable : MonoBehaviour
                 _boughtUpgrades = new List<SOUpgrade>();
                 SetNextUpgrade();
                 
-                OnUpgradesSetup?.Invoke();
+                OnUpgradesSetup?.Invoke(_boughtUpgrades);
         }
 
         
         private void BuyUpgrade(SOUpgrade upgrade)
         {
-                if (!CanBuyUpgrade(upgrade)) return;
+                if (!upgrade || !GameManager.Instance) return;
                 
+                interactableTooltip.Punch(Color.green);
+                GameManager.Instance.UpdateCurrency(GameManager.Instance.CurrentCurrency - upgrade.UpgradeCost);
                 _boughtUpgrades.Add(upgrade);
                 OnUpgradeBought?.Invoke(upgrade);
+                
+                SetNextUpgrade();
         }
 
         private bool CanBuyUpgrade(SOUpgrade upgrade)
         {
-                if (upgrade == null || !GameManager.Instance || _boughtUpgrades.Contains(upgrade)) return false;
+                if (!upgrade || !GameManager.Instance || _boughtUpgrades.Contains(upgrade)) return false;
         
                 return GameManager.Instance.CurrentCurrency >= upgrade.UpgradeCost;
         }
@@ -136,11 +137,11 @@ public class Upgradable : MonoBehaviour
         
                 if (_nextUpgrade)
                 {
-                        interactableTooltip?.SetText("Upgrade", _nextUpgrade.UpgradeDescription,_nextUpgrade.UpgradeCost);
+                        interactableTooltip?.SetText("Upgrade", $"{_nextUpgrade.UpgradeDescription}\n\nCosts {_nextUpgrade.UpgradeCost}$");
                 }
                 else
                 {
-                        interactableTooltip?.SetText("", "No more upgrades available", 0);
+                        interactableTooltip?.SetText("", "No more upgrades available");
                 }
                 
                 OnNextUpgradeChanged?.Invoke(_nextUpgrade);

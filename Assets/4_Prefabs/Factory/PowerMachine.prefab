@@ -1298,8 +1298,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2065bc8ed88e70247991673fc45e7b2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  machineID: 0
-  baseProcessDuration: 4
+  processingDuration: 0
+  baseProcessRange:
+    minValue: 2
+    maxValue: 5
   packageCheckRadius: 0.55
   packageLayerMask:
     serializedVersion: 2
@@ -1320,6 +1322,7 @@ MonoBehaviour:
   outputPosition: {fileID: 3825289821853027055}
   processingBar: {fileID: 7783503373771541622}
   processingBarCanvasGroup: {fileID: 8296277342754567617}
+  upgradable: {fileID: 4149546260991944657}
   processingSfx: {fileID: 11400000, guid: d057c6bc99898d344a8849596a5f9bef, type: 2}
   finishedProcessingSfx: {fileID: 0}
   power: 2
@@ -1339,7 +1342,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cfc727fe9d0434a96ddb497f2f2c5c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  upgradableID: 0
+  upgradableID: 82208724
   availableUpgrades:
   - {fileID: 11400000, guid: ded4711d229f05d4394b704288894cef, type: 2}
   - {fileID: 11400000, guid: 9fe97ab1c663a0c478015000a0c0c16b, type: 2}

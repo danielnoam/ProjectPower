@@ -23,7 +23,9 @@ public class InteractableTooltip : MonoBehaviour
 
 
         private Camera _camera;
-        private Sequence _tooltipSequence;
+        private Sequence _visibilitySequence;
+        private Sequence _punchSequence;
+        private Vector3 _tooltipCanvasDefaultSize;
         private bool _isVisible = true;
         
         private void OnValidate()
@@ -43,6 +45,7 @@ public class InteractableTooltip : MonoBehaviour
 
         private void Awake()
         {
+                _tooltipCanvasDefaultSize = tooltipCanvas.transform.localScale;
                 _camera = Camera.main;
                 ToggleTooltip(false,false);
         }
@@ -96,14 +99,14 @@ public class InteractableTooltip : MonoBehaviour
 
         private void ToggleTooltip(bool isVisible, bool animate = true)
         {
-                if (_tooltipSequence.isAlive) _tooltipSequence.Stop();
+                if (_visibilitySequence.isAlive) _visibilitySequence.Stop();
 
                 if (animate)
                 {
 
                         if (isVisible) _isVisible = true;
                         
-                        _tooltipSequence = Sequence.Create()
+                        _visibilitySequence = Sequence.Create()
                                 .Group(Tween.Alpha(tooltipCanvas, isVisible ? maxAlpha : 0, animationDuration))
                                 .OnComplete((() => { if (!isVisible) _isVisible = false;}));
                 }
@@ -114,17 +117,25 @@ public class InteractableTooltip : MonoBehaviour
                 }
         }
 
-        public void SetText(string action, string description, int cost)
+        public void SetText(string action, string description)
         {
                 actionText.text = action;
-                if (cost <= 0)
-                {
-                        descriptionText.text = $"{description}";
-                }
-                else
-                {
-                        descriptionText.text = $"{description}\n\nCosts = {cost}$";
-                }
+                descriptionText.text = $"{description}";
 
+        }
+
+        public void Punch(Color punchColor = default)
+        {
+                if (_punchSequence.isAlive) _punchSequence.Stop();
+
+                tooltipCanvas.transform.localScale = _tooltipCanvasDefaultSize;
+                _punchSequence = Sequence.Create()
+                        .Group(Tween.PunchScale(tooltipCanvas.transform, Vector3.one * 0.02f,  0.2f, frequency:1));
+
+                if (punchColor != default)
+                {
+                        _punchSequence.Group(Tween.Color(canvasBackground, punchColor, 0.2f));
+                        _punchSequence.Chain(Tween.Color(canvasBackground, gameSettings.OutlineColor, 0.2f));
+                }
         }
 }

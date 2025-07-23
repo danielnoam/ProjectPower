@@ -65,15 +65,14 @@ public class GameManager : MonoBehaviour
         
         FindOrderCounters();
         FindPowerMachines();
-        
-        currentDay = 0;
-        currentCurrency = 0;
-        lifetimeCompletedOrders = 0;
-        lifetimeFailedOrders = 0;
     }
 
     private void Start()
     {
+        currentDay = 0;
+        lifetimeCompletedOrders = 0;
+        lifetimeFailedOrders = 0;
+        UpdateCurrency(0);
         VFXManager.Instance?.PlayVFX(introVFXSequence);
         OnGameStarted?.Invoke();
     }

@@ -29,6 +29,45 @@ public class PowerMachine : ProcessingMachineBase
         }
     }
     
+    private void OnEnable()
+    {
+        
+        if (upgradable)
+        {
+            upgradable.OnUpgradesSetup += OnUpgradesSetup;
+            upgradable.OnUpgradeBought += OnUpgradeBought;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (upgradable)
+        {
+            upgradable.OnUpgradesSetup -= OnUpgradesSetup;
+            upgradable.OnUpgradeBought -= OnUpgradeBought;
+        }
+        
+    }
+    
+    private void OnUpgradeBought(SOUpgrade upgrade)
+    {
+        if (upgrade is SOPowerMachineUpgrade powerMachineUpgrade)
+        {
+            LowerProcessDurationBy(powerMachineUpgrade.processDurationReduction);
+        }
+    }
+
+    private void OnUpgradesSetup(List<SOUpgrade> upgrades)
+    {
+        foreach (var upgrade in upgrades)
+        {
+            if (upgrade is SOPowerMachineUpgrade powerMachineUpgrade)
+            {
+                LowerProcessDurationBy(powerMachineUpgrade.processDurationReduction);
+            }
+        }
+    }
+    
 
     protected override bool CanProcessPackage(NumberdPackage package)
     {

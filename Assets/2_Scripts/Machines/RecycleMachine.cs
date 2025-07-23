@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,7 +6,6 @@ public class RecycleMachine : ProcessingMachineBase
 {
     [Header("Recycle Machine Settings")]
     [SerializeField, Min(0)] private int recycleOutputNumber = 2;
-    
 
 
     private void OnValidate()
@@ -14,10 +14,43 @@ public class RecycleMachine : ProcessingMachineBase
         {
             recycleOutputNumber = gameSettings.PackageNumbersRange.minValue;
         }
+    }
 
-        if (machineID <= 0)
+    private void OnEnable()
+    {
+        
+        if (upgradable)
         {
-            machineID = GetInstanceID();
+            upgradable.OnUpgradesSetup += OnUpgradesSetup;
+            upgradable.OnUpgradeBought += OnUpgradeBought;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (upgradable)
+        {
+            upgradable.OnUpgradesSetup -= OnUpgradesSetup;
+            upgradable.OnUpgradeBought -= OnUpgradeBought;
+        }
+    }
+
+    private void OnUpgradeBought(SOUpgrade upgrade)
+    {
+        if (upgrade is SORecycleMachineUpgrade recycleUpgrade)
+        {
+            LowerProcessDurationBy(recycleUpgrade.recycleDurationReduction);
+        }
+    }
+
+    private void OnUpgradesSetup(List<SOUpgrade> upgrades)
+    {
+        foreach (var upgrade in upgrades)
+        {
+            if (upgrade is SORecycleMachineUpgrade recycleUpgrade)
+            {
+                LowerProcessDurationBy(recycleUpgrade.recycleDurationReduction);
+            }
         }
     }
 
