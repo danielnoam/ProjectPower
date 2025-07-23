@@ -21,13 +21,13 @@ public class SOGameSettings : ScriptableObject
     [SerializeField] private Color outlineColor = Color.cornflowerBlue;
     [SerializeField] private Outline.Mode outlineMode = Outline.Mode.OutlineVisible;
     
+    
     [Header("Resources")]
     [SerializeField] private NumberdPackage smallPackagePrefab;
     [SerializeField] private NumberdPackage mediumPackagePrefab;
     [SerializeField] private NumberdPackage largePackagePrefab;
     [SerializeField] private GameObject[] clientsPrefabs;
     [SerializeField] private SODayData[] dayData = Array.Empty<SODayData>();
-    
     
     public int MaxPackagesInGame => maxPackagesInGame;
 
@@ -36,7 +36,6 @@ public class SOGameSettings : ScriptableObject
     public float OutlineWidth => outlineWidth;
     public Color OutlineColor => outlineColor;
     public Outline.Mode OutlineMode => outlineMode;
-
     
 
     public NumberdPackage GetPackagePrefabByNumber(int number)

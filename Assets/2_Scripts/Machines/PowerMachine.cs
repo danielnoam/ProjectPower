@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PowerMachine : ProcessingMachineBase
@@ -10,6 +11,7 @@ public class PowerMachine : ProcessingMachineBase
     [SerializeField] private PowerMachineNumberIndicator[] powerNumbers;
     
     public int Power => power;
+    
     
 
     private void OnValidate()
@@ -26,6 +28,7 @@ public class PowerMachine : ProcessingMachineBase
             }
         }
     }
+    
 
     protected override bool CanProcessPackage(NumberdPackage package)
     {
@@ -63,4 +66,7 @@ public class PowerMachine : ProcessingMachineBase
         }
         return result;
     }
+    
+    
+
 }

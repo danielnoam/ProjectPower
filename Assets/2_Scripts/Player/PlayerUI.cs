@@ -74,7 +74,7 @@ public class PlayerUI : MonoBehaviour
     private void OnDayStarted(SODayData dayData)
     {
         _currentDayData = dayData;
-        UpdateDay(GameManager.Instance ? GameManager.Instance.CurrenyDay : 0);
+        UpdateDay(GameManager.Instance ? GameManager.Instance.CurrentDay : 0);
         UpdateOrdersCompleted(0);
         UpdateOrdersFailed(0);
         ToggleCurrencyUI(true);

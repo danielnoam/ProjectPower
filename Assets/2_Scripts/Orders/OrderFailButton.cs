@@ -7,7 +7,7 @@ using PrimeTween;
 using UnityEngine;
 
 [RequireComponent(typeof(Interactable))]
-public class FailOrderButton : MonoBehaviour
+public class OrderFailButton : MonoBehaviour
 {
     
     [Header("Button Animation")]

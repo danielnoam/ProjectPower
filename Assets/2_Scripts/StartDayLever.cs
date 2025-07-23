@@ -54,12 +54,13 @@ public class StartDayLever : MonoBehaviour
     {
         if (_leverSequence.isAlive) _leverSequence.Stop();
 
+        _isLeverPulled = true;
+        
         _leverSequence = Sequence.Create()
             .Group(Tween.LocalEulerAngles(leverHandleGfx,leverHandleGfx.localEulerAngles, pullRotation, pullDuration, pullEase))
             .Group(Tween.Alpha(canvasGroup, canvasGroup.alpha, 0f, pullDuration, pullEase))
             .OnComplete(() =>
             {
-                _isLeverPulled = true;
                 GameManager.Instance.StartNewDay();
             });
     }
@@ -68,11 +69,12 @@ public class StartDayLever : MonoBehaviour
     {
         if (_leverSequence.isAlive) _leverSequence.Stop();
 
+        _isLeverPulled = false;
+        
         _leverSequence = Sequence.Create()
             .Group(Tween.LocalEulerAngles(leverHandleGfx, leverHandleGfx.localEulerAngles, _initialLeverRotation, releaseDuration, pullEase))
             .OnComplete(() =>
             {
-                _isLeverPulled = false;
                 interactable.SetCanInteract(true);
             });
     }

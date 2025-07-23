@@ -152,30 +152,37 @@ public class PlayerInteraction : MonoBehaviour
     
     private void CheckForInteractable()
     {
-        Collider[] colliders = Physics.OverlapSphere(
+        var colliders = Physics.OverlapSphere(
             interactionPosition.position, 
             interactionRadius, 
             interactionLayer
         );
-    
-        Interactable foundInteractable = null;
-        foreach (Collider col in colliders)
+
+        Interactable closestInteractable = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (var col in colliders)
         {
             if (col.TryGetComponent(out Interactable interactable))
             {
                 if (!interactable.CanInteract) continue;
-                foundInteractable = interactable;
-                break; 
+
+                float distance = Vector3.Distance(interactionPosition.position, col.transform.position);
+            
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestInteractable = interactable;
+                }
             }
         }
 
-        if (foundInteractable != _closestInteractable)
+        if (closestInteractable != _closestInteractable)
         {
-
             if (_closestInteractable) _closestInteractable.UnHighlight();
-            
-            _closestInteractable = foundInteractable;
         
+            _closestInteractable = closestInteractable;
+    
             if (_closestInteractable) _closestInteractable.Highlight();
         }
     }

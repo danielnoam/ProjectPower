@@ -432,6 +432,30 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5726745122243969719}
     m_Modifications:
+    - target: {fileID: 555361129038373823, guid: a3ef1a62eb1582b4d9d7a79995e39b58, type: 3}
+      propertyPath: m_Positions.Array.data[0].x
+      value: -4.1628923
+      objectReference: {fileID: 0}
+    - target: {fileID: 555361129038373823, guid: a3ef1a62eb1582b4d9d7a79995e39b58, type: 3}
+      propertyPath: m_Positions.Array.data[0].y
+      value: 1.899111
+      objectReference: {fileID: 0}
+    - target: {fileID: 555361129038373823, guid: a3ef1a62eb1582b4d9d7a79995e39b58, type: 3}
+      propertyPath: m_Positions.Array.data[0].z
+      value: -10.002999
+      objectReference: {fileID: 0}
+    - target: {fileID: 555361129038373823, guid: a3ef1a62eb1582b4d9d7a79995e39b58, type: 3}
+      propertyPath: m_Positions.Array.data[1].x
+      value: -3.5270004
+      objectReference: {fileID: 0}
+    - target: {fileID: 555361129038373823, guid: a3ef1a62eb1582b4d9d7a79995e39b58, type: 3}
+      propertyPath: m_Positions.Array.data[1].y
+      value: 1.389
+      objectReference: {fileID: 0}
+    - target: {fileID: 555361129038373823, guid: a3ef1a62eb1582b4d9d7a79995e39b58, type: 3}
+      propertyPath: m_Positions.Array.data[1].z
+      value: -10.003
+      objectReference: {fileID: 0}
     - target: {fileID: 1572972875653608829, guid: a3ef1a62eb1582b4d9d7a79995e39b58, type: 3}
       propertyPath: m_Name
       value: OrderFailButton

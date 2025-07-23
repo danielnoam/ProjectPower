@@ -40,3 +40,21 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fc901c3af2ca1d64fb094f10bbcebc56, type: 2}
   - {fileID: 11400000, guid: 372a83103eabb6c4992dd57fc7228f61, type: 2}
   - {fileID: 11400000, guid: 53e069e4a65c0aa42a578f3997d439d1, type: 2}
+  recycleMachineUpgrades:
+  - UpgradeDescription: Reduces recycle duration by 1 second
+    UpgradeCost: 25
+    UpgradeID: 3465234
+    recycleDurationReduction: 1
+  - UpgradeDescription: Reduces recycle duration by 1 second
+    UpgradeCost: 50
+    UpgradeID: 234234
+    recycleDurationReduction: 1
+  powerMachineUpgrades:
+  - UpgradeDescription: Reduces processing duration by 1 second
+    UpgradeCost: 100
+    UpgradeID: 346345
+    processDurationReduction: 1
+  - UpgradeDescription: Reduces processing duration by 1 second
+    UpgradeCost: 150
+    UpgradeID: 345345
+    processDurationReduction: 1

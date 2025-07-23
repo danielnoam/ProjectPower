@@ -1,10 +1,11 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class RecycleMachine : ProcessingMachineBase
 {
     [Header("Recycle Machine Settings")]
     [SerializeField, Min(0)] private int recycleOutputNumber = 2;
+    
 
 
     private void OnValidate()
@@ -12,6 +13,11 @@ public class RecycleMachine : ProcessingMachineBase
         if (recycleOutputNumber < gameSettings.PackageNumbersRange.minValue)
         {
             recycleOutputNumber = gameSettings.PackageNumbersRange.minValue;
+        }
+
+        if (machineID <= 0)
+        {
+            machineID = GetInstanceID();
         }
     }
 
@@ -27,4 +33,12 @@ public class RecycleMachine : ProcessingMachineBase
     }
     
     
+
+
+    
+    
+    
+
+
+
 }

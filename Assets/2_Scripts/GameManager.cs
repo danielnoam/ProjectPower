@@ -32,7 +32,6 @@ public class GameManager : MonoBehaviour
     
     
     private readonly List<OrderCounter> _orderCounters = new List<OrderCounter>();
-    private readonly List<PackageSpawner> _packageSpawners = new List<PackageSpawner>();
     private readonly Dictionary<PowerMachine, int> _powerMachines = new Dictionary<PowerMachine, int>();
     private int _currencyAtStartOfDay;
 
@@ -40,8 +39,9 @@ public class GameManager : MonoBehaviour
     public Dictionary<PowerMachine, int> PowerMachines => _powerMachines;
     public Difficulty GameDifficulty => currentDifficulty;
     public SODayData CurrentDayData => currentDayData;
-    public int CurrenyDay => currentDay;
-    
+    public int CurrentDay => currentDay;
+    public int CurrentCurrency => currentCurrency;
+
     public event Action OnGameStarted;
     public event Action<SODayData> OnDayStarted; // day number
     public event Action<SODayData> OnDayFinished; // day number
@@ -64,7 +64,6 @@ public class GameManager : MonoBehaviour
         PrimeTweenConfig.warnEndValueEqualsCurrent = false;
         
         FindOrderCounters();
-        FindPackageSpawners();
         FindPowerMachines();
         
         currentDay = 0;
@@ -109,8 +108,7 @@ public class GameManager : MonoBehaviour
         {
             totalDayCompletedOrders += 1;
             currentDifficultyCompletedOrders += 1;
-            currentCurrency += orderWorth;
-            OnCurrencyChanged?.Invoke(currentCurrency);
+            UpdateCurrency(currentCurrency+orderWorth);
             OnOrderCompleted?.Invoke(totalDayCompletedOrders);
             
             if (totalDayCompletedOrders >= currentDayData.OrdersNeededToCompleteDay)
@@ -164,9 +162,8 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            currentCurrency = _currencyAtStartOfDay; 
+            UpdateCurrency(_currencyAtStartOfDay); 
             lifetimeFailedOrders += totalDayFailedOrders;
-            OnCurrencyChanged?.Invoke(currentCurrency);
             OnDayFinished?.Invoke(currentDayData);
             currentDayData = null;
         }
@@ -176,7 +173,6 @@ public class GameManager : MonoBehaviour
 
     public void StartNewDay()
     {
-        if (_orderCounters.Count == 0) return;
 
         currentDay += 1;
         currentDayData = gameSettings.GetDayData(currentDay);
@@ -188,7 +184,12 @@ public class GameManager : MonoBehaviour
         
         OnDayStarted?.Invoke(currentDayData);
     }
-    
+
+    public void UpdateCurrency(int amount)
+    {
+        currentCurrency = amount;
+        OnCurrencyChanged?.Invoke(currentCurrency);
+    }
     
     private void FindOrderCounters()
     {
@@ -205,20 +206,6 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    private void FindPackageSpawners()
-    {
-        _packageSpawners.Clear();
-
-        var packageSpawnerObjects = FindObjectsByType<PackageSpawner>(FindObjectsSortMode.None);
-        
-        foreach (var packageSpawner in packageSpawnerObjects)
-        {
-            if (packageSpawner)
-            {
-                _packageSpawners.Add(packageSpawner);
-            }
-        }
-    }
     
     private void FindPowerMachines()
     {

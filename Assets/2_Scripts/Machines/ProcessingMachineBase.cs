@@ -10,8 +10,10 @@ using UnityEngine.UI;
 [RequireComponent(typeof(AudioSource))]
 public abstract class ProcessingMachineBase : MonoBehaviour
 {
+    [SerializeField] protected int machineID;
+    
     [Header("Base Machine Settings")] 
-    [SerializeField, Min(0.5f)] protected float processDuration = 3f;
+    [SerializeField, Min(0.5f)] protected float baseProcessDuration = 3f;
     [SerializeField, Min(0.1f)] private float packageCheckRadius = 0.55f;
     [SerializeField] protected LayerMask packageLayerMask;
 
@@ -33,17 +35,17 @@ public abstract class ProcessingMachineBase : MonoBehaviour
     [SerializeField] protected SOAudioEvent processingSfx;
     [SerializeField] protected SOAudioEvent finishedProcessingSfx;
     
-    protected int ProcessedOutputNum;
-    protected bool IsProcessing;
-    protected float ProcessTime;
-    protected Coroutine ProcessCoroutine;
-    protected Coroutine ScaleAnimationCoroutine;
-    protected Sequence ScaleReturnSequence;
-    protected Vector3 OriginalScale;
-    protected Vector3 TargetScale;
-    protected Sequence ProcessBarSequence;
-    protected float ProcessingBarFullWidth;
-    
+    private int _processedOutputNum;
+    private bool _isProcessing;
+    private float _processTime;
+    private Coroutine _processCoroutine;
+    private Coroutine _scaleAnimationCoroutine;
+    private Sequence _scaleReturnSequence;
+    private Vector3 _originalScale;
+    private Vector3 _targetScale;
+    private Sequence _processBarSequence;
+    private float _processingBarFullWidth;
+    protected float ProcessingDuration;
     public event Action<NumberdPackage> OnPackageProcessed;
     public event Action<NumberdPackage> OnPackageSpawned;
     public event Action OnProcessingStarted;
@@ -53,20 +55,26 @@ public abstract class ProcessingMachineBase : MonoBehaviour
     
     protected virtual void Awake()
     {
-        OriginalScale = machineGfx.localScale;
-        TargetScale = OriginalScale;
+        ProcessingDuration = baseProcessDuration;
+        _originalScale = machineGfx.localScale;
+        _targetScale = _originalScale;
         processingBarCanvasGroup.alpha = 0f;
-        ProcessingBarFullWidth = processingBar.rectTransform.sizeDelta.x;
+        _processingBarFullWidth = processingBar.rectTransform.sizeDelta.x;
     }
-    
-    protected virtual void Update()
+
+
+
+
+    private void Update()
     {
         CheckForPackages();
     }
+    
 
-    protected virtual void CheckForPackages()
+
+    private void CheckForPackages()
     {
-        if (IsProcessing) return;
+        if (_isProcessing) return;
         
         Collider[] colliders = Physics.OverlapSphere(
             packageCheckPosition.position, 
@@ -80,7 +88,7 @@ public abstract class ProcessingMachineBase : MonoBehaviour
             {
                 if (CanProcessPackage(package))
                 {
-                    StartProcessingPackage(package);
+                    StartProcessingPackage(package, ProcessingDuration);
                     break;
                 }
             }
@@ -88,97 +96,97 @@ public abstract class ProcessingMachineBase : MonoBehaviour
     }
     
     
-    protected virtual void StartProcessingPackage(NumberdPackage package)
+    private void StartProcessingPackage(NumberdPackage package, float processingDuration)
     {
-        if (IsProcessing) return;
+        if (_isProcessing) return;
 
         processedPackageGfx.gameObject.SetActive(true);
-        ProcessedOutputNum = CalculateOutput(package);
+        _processedOutputNum = CalculateOutput(package);
         
-        if (ProcessCoroutine != null) StopCoroutine(ProcessCoroutine);
-        ProcessCoroutine = StartCoroutine(Process());
+        if (_processCoroutine != null) StopCoroutine(_processCoroutine);
+        _processCoroutine = StartCoroutine(Process(processingDuration));
         
         OnPackageProcessed?.Invoke(package);
         package.IntoTheAbyss(packageCheckPosition.transform.position.RemoveY(0.5f));
     }
     
-    protected virtual IEnumerator Process()
+    private IEnumerator Process(float processingDuration)
     {
         OnProcessingStarted?.Invoke();
         
         processingSfx?.Play(audioSource);
-        ProcessTime = 0;
-        IsProcessing = true;
+        _processTime = 0;
+        _isProcessing = true;
         
-        if (ScaleReturnSequence.isAlive) ScaleReturnSequence.Stop();
-        if (ScaleAnimationCoroutine != null) StopCoroutine(ScaleAnimationCoroutine);
-        if (ProcessBarSequence.isAlive) ProcessBarSequence.Stop();
+        if (_scaleReturnSequence.isAlive) _scaleReturnSequence.Stop();
+        if (_scaleAnimationCoroutine != null) StopCoroutine(_scaleAnimationCoroutine);
+        if (_processBarSequence.isAlive) _processBarSequence.Stop();
         
-        ScaleAnimationCoroutine = StartCoroutine(ScaleAnimation());
-        ProcessBarSequence = Sequence.Create()
+        _scaleAnimationCoroutine = StartCoroutine(ScaleAnimation());
+        _processBarSequence = Sequence.Create()
             .Group(Tween.Alpha(processingBarCanvasGroup, 1f, scaleTransitionDuration, Ease.InOutSine))
             .Group(Tween.Custom(
                startValue: 0, 
-               endValue: ProcessingBarFullWidth, 
-               duration: processDuration, 
+               endValue: _processingBarFullWidth, 
+               duration: processingDuration, 
                onValueChange: value => processingBar.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, value),
                Ease.InOutSine));
     
-        while (ProcessTime < processDuration)
+        while (_processTime < processingDuration)
         {
-            ProcessTime += Time.deltaTime;
+            _processTime += Time.deltaTime;
             yield return null;
         }
     
         FinishProcessing();
     }
     
-    protected virtual IEnumerator ScaleAnimation()
+    private IEnumerator ScaleAnimation()
     {
-        while (IsProcessing)
+        while (_isProcessing)
         {
             float waitTime = UnityEngine.Random.Range(timeBetweenScales.minValue, timeBetweenScales.maxValue);
             yield return new WaitForSeconds(waitTime);
         
-            if (!IsProcessing) break;
+            if (!_isProcessing) break;
             
-            if (ScaleReturnSequence.isAlive) ScaleReturnSequence.Stop();
+            if (_scaleReturnSequence.isAlive) _scaleReturnSequence.Stop();
             
             float horizontalScale = UnityEngine.Random.Range(scaleRange.minValue, scaleRange.maxValue);
             float verticalScale = 1f / horizontalScale;
         
-            TargetScale = new Vector3(
-                OriginalScale.x * horizontalScale,
-                OriginalScale.y * verticalScale, 
-                OriginalScale.z * horizontalScale
+            _targetScale = new Vector3(
+                _originalScale.x * horizontalScale,
+                _originalScale.y * verticalScale, 
+                _originalScale.z * horizontalScale
             );
 
-            ScaleReturnSequence = Sequence.Create()
-                .Group(Tween.Scale(machineGfx, TargetScale, scaleTransitionDuration, Ease.OutElastic));
+            _scaleReturnSequence = Sequence.Create()
+                .Group(Tween.Scale(machineGfx, _targetScale, scaleTransitionDuration, Ease.OutElastic));
 
-            while (IsProcessing && ScaleReturnSequence.isAlive)
+            while (_isProcessing && _scaleReturnSequence.isAlive)
             {
                 yield return null;
             }
         }
     }
 
-    protected virtual void FinishProcessing()
+    private void FinishProcessing()
     {
-        if (ScaleAnimationCoroutine != null) StopCoroutine(ScaleAnimationCoroutine);
+        if (_scaleAnimationCoroutine != null) StopCoroutine(_scaleAnimationCoroutine);
         
-        if (ProcessBarSequence.isAlive) ProcessBarSequence.Stop();
-        ProcessBarSequence = Sequence.Create()
+        if (_processBarSequence.isAlive) _processBarSequence.Stop();
+        _processBarSequence = Sequence.Create()
             .Group(Tween.Alpha(processingBarCanvasGroup, 0f, scaleReturnDuration + 0.5f, Ease.InOutSine));
         
-        if (ScaleReturnSequence.isAlive) ScaleReturnSequence.Stop();
-        ScaleReturnSequence = Sequence.Create()
-            .ChainCallback(() => { machineGfx.localScale = OriginalScale; })
+        if (_scaleReturnSequence.isAlive) _scaleReturnSequence.Stop();
+        _scaleReturnSequence = Sequence.Create()
+            .ChainCallback(() => { machineGfx.localScale = _originalScale; })
             .Group(Tween.PunchScale(machineGfx, Vector3.one * 0.2f, scaleReturnDuration, 1))
             .ChainCallback(() =>
             {
-                IsProcessing = false;
-                ProcessTime = 0f;
+                _isProcessing = false;
+                _processTime = 0f;
                 processingSfx?.Stop(audioSource);
                 finishedProcessingSfx?.Play(audioSource);
                 processedPackageGfx.gameObject.SetActive(false);
@@ -186,16 +194,16 @@ public abstract class ProcessingMachineBase : MonoBehaviour
                 OnProcessingFinished?.Invoke();
                 SpawnOutputPackage();
             })
-            .Group(Tween.Scale(machineGfx, OriginalScale, scaleReturnDuration, Ease.OutElastic));
+            .Group(Tween.Scale(machineGfx, _originalScale, scaleReturnDuration, Ease.OutElastic));
     }
     
-    protected virtual void SpawnOutputPackage()
+    private void SpawnOutputPackage()
     {
         OnBeforeSpawnPackage?.Invoke();
         
-        var packagePrefab = gameSettings.GetPackagePrefabByNumber(ProcessedOutputNum);
+        var packagePrefab = gameSettings.GetPackagePrefabByNumber(_processedOutputNum);
         var newPackage = Instantiate(packagePrefab, outputPosition.position, Quaternion.identity);
-        newPackage.SetNumber(ProcessedOutputNum);
+        newPackage.SetNumber(_processedOutputNum);
         newPackage.Push(outputPosition.forward, 5f);
         OnPackageSpawned?.Invoke(newPackage);
         
@@ -205,7 +213,7 @@ public abstract class ProcessingMachineBase : MonoBehaviour
     protected abstract bool CanProcessPackage(NumberdPackage package);
     public abstract int CalculateOutput(NumberdPackage package);
 
-    protected virtual void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
         if (packageCheckPosition)
         {

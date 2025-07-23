@@ -193,6 +193,10 @@ GameObject:
   m_Component:
   - component: {fileID: 2985392605924662014}
   - component: {fileID: 4070297432337407435}
+  - component: {fileID: 9163256669220539655}
+  - component: {fileID: 7047174241751047742}
+  - component: {fileID: 3420594317579856598}
+  - component: {fileID: 5490466553916679260}
   - component: {fileID: 5793724962091365040}
   m_Layer: 0
   m_Name: 'RecycleMachine '
@@ -209,7 +213,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4453858250859696287}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.70710677, z: -0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 7.566678, y: 0, z: -1.401}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -218,6 +222,7 @@ Transform:
   - {fileID: 2292773531478054517}
   - {fileID: 8370681345901575065}
   - {fileID: 1553507860655895920}
+  - {fileID: 2301599313441242090}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!82 &4070297432337407435
@@ -317,6 +322,81 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!135 &9163256669220539655
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4453858250859696287}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 2.05
+  m_Center: {x: 0, y: 0.83, z: 1.26}
+--- !u!114 &7047174241751047742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4453858250859696287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 0
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
+--- !u!114 &3420594317579856598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4453858250859696287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f847edc7999049aa8a56ac8a7218aea5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canInteract: 1
+  interactionSfx: {fileID: 0}
+  gameSettings: {fileID: 11400000, guid: 074051d85b369d84881ac98c8e460b48, type: 2}
+  audioSource: {fileID: 4070297432337407435}
+  outline: {fileID: 7047174241751047742}
+--- !u!114 &5490466553916679260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4453858250859696287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cfc727fe9d0434a96ddb497f2f2c5c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  upgradableID: 36057122
+  availableUpgrades:
+  - {fileID: 11400000, guid: 4bc75a48b661d8547aa957d64fdd5610, type: 2}
+  - {fileID: 11400000, guid: dab76c3ef9c35d94696bdcba432fb5ca, type: 2}
+  gameSettings: {fileID: 11400000, guid: 074051d85b369d84881ac98c8e460b48, type: 2}
+  interactable: {fileID: 3420594317579856598}
+  interactableTooltip: {fileID: 8553576856663194048}
 --- !u!114 &5793724962091365040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -329,7 +409,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6a740d98fd931b45baa411d908757c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  processDuration: 5
+  machineID: 363378
+  baseProcessDuration: 5
   packageCheckRadius: 0.99
   packageLayerMask:
     serializedVersion: 2
@@ -781,6 +862,109 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 3
+--- !u!1001 &610721126139474184
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2985392605924662014}
+    m_Modifications:
+    - target: {fileID: 1199903054658586160, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: m_text
+      value: 'Faster rectycle speed
+
+
+        Costs - 50$
+
+'
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695987621058841314, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695987621058841314, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.312
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695987621058841314, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695987621058841314, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695987621058841314, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695987621058841314, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695987621058841314, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695987621058841314, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695987621058841314, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695987621058841314, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3303670623758452852, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: m_text
+      value: 'Upgrade '
+      objectReference: {fileID: 0}
+    - target: {fileID: 8926150755946574978, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: m_Name
+      value: InteractbleTooltip
+      objectReference: {fileID: 0}
+    - target: {fileID: 9137204916638959816, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: actionPrompt
+      value: 'Upgrade '
+      objectReference: {fileID: 0}
+    - target: {fileID: 9137204916638959816, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: interactable
+      value: 
+      objectReference: {fileID: 3420594317579856598}
+    - target: {fileID: 9137204916638959816, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+      propertyPath: descriptionPrompt
+      value: 'Faster rectycle speed
+
+
+        Costs - 50$
+
+'
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+--- !u!4 &2301599313441242090 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1695987621058841314, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+  m_PrefabInstance: {fileID: 610721126139474184}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8553576856663194048 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9137204916638959816, guid: 34e7d5b82c839dd4bb035977b79fb23e, type: 3}
+  m_PrefabInstance: {fileID: 610721126139474184}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56d4d04a2d94164be3820a3c164f543, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &783280677971673458
 PrefabInstance:
   m_ObjectHideFlags: 0
