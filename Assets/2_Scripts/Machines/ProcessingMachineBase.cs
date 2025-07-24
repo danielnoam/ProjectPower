@@ -36,6 +36,7 @@ public abstract class ProcessingMachineBase : MonoBehaviour
     [SerializeField] protected Upgradable upgradable;
     [SerializeField] protected SOAudioEvent processingSfx;
     [SerializeField] protected SOAudioEvent finishedProcessingSfx;
+    [SerializeField] protected ParticleSystem[] finishedProcessingParticleEffects;
     
     private int _processedOutputNum;
     private bool _isProcessing;
@@ -191,6 +192,10 @@ public abstract class ProcessingMachineBase : MonoBehaviour
                 _processTime = 0f;
                 processingSfx?.Stop(audioSource);
                 finishedProcessingSfx?.Play(audioSource);
+                foreach (var effect in finishedProcessingParticleEffects)
+                {
+                    effect?.Play();
+                }
                 processedPackageGfx.gameObject.SetActive(false);
 
                 OnProcessingFinished?.Invoke();

@@ -1406,7 +1406,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7152204111196684132, guid: ac512df5d4ed63f42924c1e510d94889, type: 3}
       propertyPath: m_text
-      value: All assets are by kenny
+      value: All assets are by kenney
       objectReference: {fileID: 0}
     - target: {fileID: 7152204111196684132, guid: ac512df5d4ed63f42924c1e510d94889, type: 3}
       propertyPath: m_fontSize

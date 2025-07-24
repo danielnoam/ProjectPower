@@ -4,7 +4,6 @@ using PrimeTween;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
-[RequireComponent(typeof(Outline))]
 [RequireComponent(typeof(Collider))]
 public class Interactable : MonoBehaviour
 {
@@ -29,7 +28,7 @@ public class Interactable : MonoBehaviour
 
     private void Awake()
     {
-        if (gameSettings)
+        if (gameSettings && outline)
         {
             outline.OutlineColor = gameSettings.OutlineColor;
             outline.OutlineWidth = 0;
@@ -44,7 +43,7 @@ public class Interactable : MonoBehaviour
 
         _isHighlighted = true;
         
-        if (gameSettings)
+        if (gameSettings && outline)
         {
             if (_highlightSequence.isAlive) _highlightSequence.Stop();
             _highlightSequence = Sequence.Create()
@@ -63,7 +62,7 @@ public class Interactable : MonoBehaviour
         if (!_isHighlighted) return;
         
         _isHighlighted = false;
-        if (gameSettings)
+        if (gameSettings && outline)
         {
             if (_highlightSequence.isAlive) _highlightSequence.Stop();
             _highlightSequence = Sequence.Create()
