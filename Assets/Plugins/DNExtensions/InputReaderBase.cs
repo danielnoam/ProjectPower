@@ -2,28 +2,30 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace DNExtensions
+namespace DNExtensions.InputSystem
 {
     
-    [RequireComponent(typeof(PlayerInput))]
+
     public class InputReaderBase : MonoBehaviour
     {
-        [Header("Cursor Settings")] [SerializeField]
-        private bool hideCursor = true;
-
-        [SerializeField, HideInInspector] protected PlayerInput playerInput;
+        [Header("Cursor Settings")] 
+        [SerializeField] private bool hideCursorOnAwake = true;
+        [SerializeField] protected PlayerInput playerInput;
 
 
         private void OnValidate()
         {
-            if (!playerInput) playerInput = GetComponent<PlayerInput>();
 
-            if (playerInput) playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
+            if (playerInput && playerInput.notificationBehavior != PlayerNotifications.InvokeCSharpEvents)
+            {
+                playerInput.notificationBehavior = PlayerNotifications.InvokeCSharpEvents;
+                Debug.Log("Set Player Input notification to c# events");
+            }
         }
 
         protected virtual void Awake()
         {
-            SetCursorVisibility(hideCursor);
+            SetCursorVisibility(hideCursorOnAwake);
         }
 
 
@@ -45,24 +47,10 @@ namespace DNExtensions
             action.canceled -= callback;
         }
 
-
-
-        private void SetCursorVisibility(bool state)
-        {
-            if (state)
-            {
-                Cursor.lockState = CursorLockMode.Confined;
-                Cursor.visible = false;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-            }
-        }
+        
 
         [Button("Toggle Cursor")]
-        private void ToggleCursorVisibility()
+        public void ToggleCursorVisibility()
         {
             if (Cursor.visible)
             {
@@ -76,6 +64,20 @@ namespace DNExtensions
             }
         }
 
+        
+        public void SetCursorVisibility(bool state)
+        {
+            if (state)
+            {
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = false;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+        }
 
 
     }

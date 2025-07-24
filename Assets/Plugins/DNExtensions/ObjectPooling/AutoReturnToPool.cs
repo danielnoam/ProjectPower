@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace DNExtensions
+namespace DNExtensions.ObjectPooling
 {
         public class AutoReturnToPool : MonoBehaviour, IPooledObject
         {

@@ -12,9 +12,9 @@ namespace DNExtensions
     [AttributeUsage(AttributeTargets.Method)]
     public class ButtonAttribute : Attribute 
     {
-        public string Name = "";
-        public int Size = 30;
-        public int Space = 3;
+        public readonly string Name = "";
+        public readonly int Size = 30;
+        public readonly int Space = 3;
         public Color Color = Color.white;
 
         /// <summary>
@@ -65,8 +65,8 @@ namespace DNExtensions
     [CustomEditor(typeof(MonoBehaviour), true)]
     public class ButtonAttributeEditor : UnityEditor.Editor
     {
-        private Dictionary<string, object[]> methodParameters = new Dictionary<string, object[]>();
-        private Dictionary<string, bool> foldoutStates = new Dictionary<string, bool>();
+        private readonly Dictionary<string, object[]> _methodParameters = new Dictionary<string, object[]>();
+        private readonly Dictionary<string, bool> _foldoutStates = new Dictionary<string, bool>();
         
         public override void OnInspectorGUI()
         {
@@ -102,20 +102,17 @@ namespace DNExtensions
             string methodKey = target.GetInstanceID() + "_" + method.Name;
             
             // Initialize parameter values if not exists
-            if (!methodParameters.ContainsKey(methodKey))
+            if (!_methodParameters.ContainsKey(methodKey))
             {
-                methodParameters[methodKey] = new object[parameters.Length];
+                _methodParameters[methodKey] = new object[parameters.Length];
                 for (int i = 0; i < parameters.Length; i++)
                 {
-                    methodParameters[methodKey][i] = GetDefaultValue(parameters[i].ParameterType);
+                    _methodParameters[methodKey][i] = GetDefaultValue(parameters[i].ParameterType);
                 }
             }
             
             // Initialize foldout state if not exists
-            if (!foldoutStates.ContainsKey(methodKey))
-            {
-                foldoutStates[methodKey] = false;
-            }
+            _foldoutStates.TryAdd(methodKey, false);
             
             // Set button color
             Color originalColor = GUI.backgroundColor;
@@ -126,9 +123,9 @@ namespace DNExtensions
             {
                 try
                 {
-                    method.Invoke(target, methodParameters[methodKey]);
+                    method.Invoke(target, _methodParameters[methodKey]);
                 }
-                catch (System.Exception e)
+                catch (Exception e)
                 {
                     Debug.LogError($"Error invoking method {method.Name}: {e.Message}");
                 }
@@ -141,24 +138,24 @@ namespace DNExtensions
             if (parameters.Length > 0)
             {
                 EditorGUI.indentLevel++;
-                foldoutStates[methodKey] = EditorGUILayout.Foldout(
-                    foldoutStates[methodKey], 
+                _foldoutStates[methodKey] = EditorGUILayout.Foldout(
+                    _foldoutStates[methodKey], 
                     $"Parameters ({parameters.Length})",
                     true,
                     EditorStyles.foldoutHeader
                 );
                 
-                if (foldoutStates[methodKey])
+                if (_foldoutStates[methodKey])
                 {
                     EditorGUI.indentLevel++;
                     EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                     
                     for (int i = 0; i < parameters.Length; i++)
                     {
-                        methodParameters[methodKey][i] = DrawParameterField(
+                        _methodParameters[methodKey][i] = DrawParameterField(
                             parameters[i].Name, 
                             parameters[i].ParameterType, 
-                            methodParameters[methodKey][i]
+                            _methodParameters[methodKey][i]
                         );
                     }
                     
@@ -188,7 +185,7 @@ namespace DNExtensions
             }
             else if (paramType == typeof(bool))
             {
-                return EditorGUILayout.Toggle(niceName, currentValue != null ? (bool)currentValue : false);
+                return EditorGUILayout.Toggle(niceName, currentValue != null && (bool)currentValue);
             }
             else if (paramType == typeof(Vector2))
             {
@@ -236,8 +233,8 @@ namespace DNExtensions
     [CustomEditor(typeof(ScriptableObject), true)]
     public class ButtonAttributeScriptableObjectEditor : UnityEditor.Editor
     {
-        private Dictionary<string, object[]> methodParameters = new Dictionary<string, object[]>();
-        private Dictionary<string, bool> foldoutStates = new Dictionary<string, bool>();
+        private readonly Dictionary<string, object[]> _methodParameters = new Dictionary<string, object[]>();
+        private readonly Dictionary<string, bool> _foldoutStates = new Dictionary<string, bool>();
         
         public override void OnInspectorGUI()
         {
@@ -273,20 +270,17 @@ namespace DNExtensions
             string methodKey = target.GetInstanceID() + "_" + method.Name;
             
             // Initialize parameter values if not exists
-            if (!methodParameters.ContainsKey(methodKey))
+            if (!_methodParameters.ContainsKey(methodKey))
             {
-                methodParameters[methodKey] = new object[parameters.Length];
+                _methodParameters[methodKey] = new object[parameters.Length];
                 for (int i = 0; i < parameters.Length; i++)
                 {
-                    methodParameters[methodKey][i] = GetDefaultValue(parameters[i].ParameterType);
+                    _methodParameters[methodKey][i] = GetDefaultValue(parameters[i].ParameterType);
                 }
             }
             
             // Initialize foldout state if not exists
-            if (!foldoutStates.ContainsKey(methodKey))
-            {
-                foldoutStates[methodKey] = false;
-            }
+            _foldoutStates.TryAdd(methodKey, false);
             
             // Set button color
             Color originalColor = GUI.backgroundColor;
@@ -297,9 +291,9 @@ namespace DNExtensions
             {
                 try
                 {
-                    method.Invoke(target, methodParameters[methodKey]);
+                    method.Invoke(target, _methodParameters[methodKey]);
                 }
-                catch (System.Exception e)
+                catch (Exception e)
                 {
                     Debug.LogError($"Error invoking method {method.Name}: {e.Message}");
                 }
@@ -312,24 +306,24 @@ namespace DNExtensions
             if (parameters.Length > 0)
             {
                 EditorGUI.indentLevel++;
-                foldoutStates[methodKey] = EditorGUILayout.Foldout(
-                    foldoutStates[methodKey], 
+                _foldoutStates[methodKey] = EditorGUILayout.Foldout(
+                    _foldoutStates[methodKey], 
                     $"Parameters ({parameters.Length})",
                     true,
                     EditorStyles.foldoutHeader
                 );
                 
-                if (foldoutStates[methodKey])
+                if (_foldoutStates[methodKey])
                 {
                     EditorGUI.indentLevel++;
                     EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                     
                     for (int i = 0; i < parameters.Length; i++)
                     {
-                        methodParameters[methodKey][i] = DrawParameterField(
+                        _methodParameters[methodKey][i] = DrawParameterField(
                             parameters[i].Name, 
                             parameters[i].ParameterType, 
-                            methodParameters[methodKey][i]
+                            _methodParameters[methodKey][i]
                         );
                     }
                     
@@ -359,7 +353,7 @@ namespace DNExtensions
             }
             else if (paramType == typeof(bool))
             {
-                return EditorGUILayout.Toggle(niceName, currentValue != null ? (bool)currentValue : false);
+                return EditorGUILayout.Toggle(niceName, currentValue != null && (bool)currentValue);
             }
             else if (paramType == typeof(Vector2))
             {

@@ -270,7 +270,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c5efca416a74996b599a779bdd9446a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hideCursor: 1
+  hideCursorOnAwake: 1
   playerInput: {fileID: 2556443598620609584}
 --- !u!114 &7425902763313652863
 MonoBehaviour:

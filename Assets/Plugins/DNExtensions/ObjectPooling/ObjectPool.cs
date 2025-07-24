@@ -5,7 +5,7 @@ using UnityEngine;
 using VInspector;
 using Object = UnityEngine.Object;
 
-namespace DNExtensions
+namespace DNExtensions.ObjectPooling
 {
     
     [Serializable]

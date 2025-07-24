@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 
-namespace DNExtensions
+namespace DNExtensions.ObjectPooling
 {
     
     public class ObjectPooler : MonoBehaviour

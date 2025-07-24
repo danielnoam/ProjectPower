@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 using DNExtensions;
+using DNExtensions.ObjectPooling;
 using UnityEngine.Audio;
 using VInspector;
 using Random = UnityEngine.Random;
@@ -40,7 +41,8 @@ namespace DNExtensions
         [Min(0)] public float maxDistance = 500f;
         [EndIf]
 
-        
+
+
         [Header("OneShot Object Pooler")]
         public bool useObjectPooler = true;
         public GameObject oneShotPrefab;

@@ -1,6 +1,6 @@
 
 
-namespace DNExtensions
+namespace DNExtensions.ObjectPooling
 {
     public interface IPooledObject
     {

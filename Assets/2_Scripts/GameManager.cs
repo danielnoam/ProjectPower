@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DNExtensions;
+using DNExtensions.MenuSystem;
 using DNExtensions.VFXManager;
 using PrimeTween;
 using UnityEngine;
@@ -15,6 +16,7 @@ public class GameManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private SOGameSettings gameSettings;
     [SerializeField] private SOVFEffectsSequence introVFXSequence;
+    [SerializeField] private MenuController mainMenu;
 
 
     [Header("Game State")]
@@ -228,6 +230,26 @@ public class GameManager : MonoBehaviour
     private void ForceCompleteDay()
     {
         FinishDay(true);
+    }
+
+    [Button]
+    public bool TogglePause()
+    {
+        if (mainMenu.gameObject.activeSelf == false)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            mainMenu.gameObject.SetActive(true);
+            Time.timeScale = 0;
+            return true;
+        }
+        
+        
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = false;
+        mainMenu.gameObject.SetActive(false);
+        Time.timeScale = 1;
+        return false;
     }
 
 
