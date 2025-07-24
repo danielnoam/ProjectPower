@@ -6,9 +6,9 @@ namespace DNExtensions.VFXManager
 {
     public static class TransitionManager
     {
-        private static Sequence activeTransition;
-        private static SOVFEffectsSequence pendingOutSequence;
-        private static bool isInitialized;
+        private static Sequence _activeTransition;
+        private static SOVFEffectsSequence _pendingOutSequence;
+        private static bool _isInitialized;
         
         static TransitionManager()
         {
@@ -17,20 +17,20 @@ namespace DNExtensions.VFXManager
         
         private static void Initialize()
         {
-            if (isInitialized) return;
+            if (_isInitialized) return;
             
             SceneManager.sceneLoaded += OnSceneLoaded;
-            isInitialized = true;
+            _isInitialized = true;
         }
         
         private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             if (!VFXManager.Instance) return;
             
-            if (pendingOutSequence)
+            if (_pendingOutSequence)
             {
-                VFXManager.Instance.PlayVFX(pendingOutSequence);
-                pendingOutSequence = null;
+                VFXManager.Instance.PlayVFX(_pendingOutSequence);
+                _pendingOutSequence = null;
             }
             else
             {
@@ -49,17 +49,17 @@ namespace DNExtensions.VFXManager
                 return;
             }
             
-            if (activeTransition.isAlive)
+            if (_activeTransition.isAlive)
             {
-                activeTransition.Stop();
+                _activeTransition.Stop();
                 VFXManager.Instance.ResetActiveEffects();
             }
             
 
             var transitionDuration = VFXManager.Instance.PlayVFX(vfxSequenceIn);
-            pendingOutSequence = vfxSequenceOut;
+            _pendingOutSequence = vfxSequenceOut;
 
-            activeTransition = Sequence.Create()
+            _activeTransition = Sequence.Create()
                 .ChainDelay(transitionDuration)
                 .ChainCallback(() =>
                 {
@@ -79,16 +79,16 @@ namespace DNExtensions.VFXManager
                 return;
             }
             
-            if (activeTransition.isAlive)
+            if (_activeTransition.isAlive)
             {
-                activeTransition.Stop();
+                _activeTransition.Stop();
                 VFXManager.Instance.ResetActiveEffects();
             }
             
             var transitionDuration = VFXManager.Instance.PlayVFX(vfxSequenceIn);
-            pendingOutSequence = vfxSequenceOut;
+            _pendingOutSequence = vfxSequenceOut;
 
-            activeTransition = Sequence.Create()
+            _activeTransition = Sequence.Create()
                 .ChainDelay(transitionDuration)
                 .ChainCallback(() =>
                 {
@@ -107,17 +107,17 @@ namespace DNExtensions.VFXManager
                 return;
             }
             
-            if (activeTransition.isAlive)
+            if (_activeTransition.isAlive)
             {
-                activeTransition.Stop();
+                _activeTransition.Stop();
                 VFXManager.Instance.ResetActiveEffects();
             }
             
             var transitionDuration = VFXManager.Instance.PlayVFX(vfxSequenceIn);
-            pendingOutSequence = vfxSequenceOut;
+            _pendingOutSequence = vfxSequenceOut;
             
 
-            activeTransition = Sequence.Create()
+            _activeTransition = Sequence.Create()
                 .ChainDelay(transitionDuration)
                 .ChainCallback(() =>
                 {
@@ -125,9 +125,40 @@ namespace DNExtensions.VFXManager
                 });
         }
         
+        /// <summary>
+        /// Plays a transition then quits the application.
+        /// </summary>
+        public static void TransitionQuit(SOVFEffectsSequence vfxSequenceIn = null) {
+    
+            if (!VFXManager.Instance)
+            {
+                Application.Quit();
+                return;
+            }
+
+            if (_activeTransition.isAlive)
+            {
+                _activeTransition.Stop();
+                VFXManager.Instance.ResetActiveEffects();
+            }
+
+            var transitionDuration = VFXManager.Instance.PlayVFX(vfxSequenceIn);
+
+
+            #if UNITY_EDITOR
+            if (Application.isEditor && Application.isPlaying)
+            {
+                _activeTransition = Sequence.Create()
+                    .ChainDelay(transitionDuration)
+                    .ChainCallback(() => { UnityEditor.EditorApplication.isPlaying = false; });
+                return;
+            }
+            #endif
+
+            _activeTransition = Sequence.Create()
+                .ChainDelay(transitionDuration)
+                .ChainCallback(Application.Quit);
+        }
     }
-    
-    
-    
 
 }

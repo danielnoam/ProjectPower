@@ -34,4 +34,4 @@ MonoBehaviour:
           maxValue: 1
         startDirection: 0
         endDirection: 3
-        ease: 1
+        ease: 4

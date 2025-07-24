@@ -34,7 +34,7 @@ namespace DNExtensions.VFXManager
             var scale = useDefaultScale ? VFXManager.Instance.DefaultIconScale : startScale;
             
             if (_sequence.isAlive) _sequence.Stop();
-            _sequence = Sequence.Create()
+            _sequence = Sequence.Create(useUnscaledTime: true)
                 .Group(Tween.Scale(_image.rectTransform, scale, endScale, effectDurationValue, ease, startDelay: startDelay));
         }
 

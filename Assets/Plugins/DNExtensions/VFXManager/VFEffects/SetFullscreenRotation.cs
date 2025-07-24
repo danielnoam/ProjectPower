@@ -34,7 +34,7 @@ namespace DNExtensions.VFXManager
             var rotation = useDefaultRotation ? VFXManager.Instance.DefaultFullScreenRotation : startRotation;
             
             if (_sequence.isAlive) _sequence.Stop();
-            _sequence = Sequence.Create()
+            _sequence = Sequence.Create(useUnscaledTime: true)
                 .Group(Tween.LocalEulerAngles(_image.rectTransform, rotation, endRotation, effectDurationValue, ease, startDelay: startDelay));
         }
 

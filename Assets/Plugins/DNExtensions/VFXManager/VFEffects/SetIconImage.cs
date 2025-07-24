@@ -34,7 +34,7 @@ namespace DNExtensions.VFXManager
                 delay = Mathf.Min(delay, sequenceDuration);
                 
                 if (_sequence.isAlive) _sequence.Stop();
-                _sequence = Sequence.Create()
+                _sequence = Sequence.Create(useUnscaledTime: true)
                     .ChainDelay(delay)
                     .OnComplete(() =>
                     {

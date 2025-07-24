@@ -34,7 +34,7 @@ namespace DNExtensions.VFXManager
             var position = useDefaultPosition ? VFXManager.Instance.DefaultFullScreenPosition : startPosition;
             
             if (_sequence.isAlive) _sequence.Stop();
-            _sequence = Sequence.Create()
+            _sequence = Sequence.Create(useUnscaledTime: true)
                 .Group(Tween.LocalPosition(_image.rectTransform, position, endPosition, effectDurationValue, ease, startDelay: startDelay));
         }
 

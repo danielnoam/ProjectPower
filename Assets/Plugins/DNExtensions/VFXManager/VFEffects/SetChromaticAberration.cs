@@ -39,7 +39,7 @@ namespace DNExtensions.VFXManager
             var intensity = useDefaultIntensity ? _chromaticAberration.intensity.value : startIntensity;
             
             if (_sequence.isAlive) _sequence.Stop();
-            _sequence = Sequence.Create()
+            _sequence = Sequence.Create(useUnscaledTime: true)
                         .Group(Tween.Custom(intensity, endIntensity, effectDurationValue, 
                             onValueChange: value => _chromaticAberration.intensity.value = value, 
                             ease: ease, startDelay: startDelay));

@@ -37,11 +37,11 @@ namespace DNExtensions.VFXManager
             switch (type)
             {
                 case EffectType.Transition:
-                    _sequence = Sequence.Create()
+                    _sequence = Sequence.Create(useUnscaledTime: true)
                         .Group(Tween.Color(_image, startColor,endColor, effectDurationValue, ease, startDelay: startDelay));
                     break;
                 case EffectType.Punch:
-                    _sequence = Sequence.Create()
+                    _sequence = Sequence.Create(useUnscaledTime: true)
                         .Group(Tween.Color(_image, endColor, effectDurationValue, ease, startDelay: startDelay))
                         .Group(Tween.Color(_image, VFXManager.Instance.DefaultFullScreenColor, effectDurationValue, ease, startDelay: startDelay + effectDurationValue));
                     break;

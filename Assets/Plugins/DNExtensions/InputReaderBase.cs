@@ -5,16 +5,19 @@ using UnityEngine.InputSystem;
 namespace DNExtensions.InputSystem
 {
     
-
     public class InputReaderBase : MonoBehaviour
     {
         [Header("Cursor Settings")] 
         [SerializeField] private bool hideCursorOnAwake = true;
-        [SerializeField] protected PlayerInput playerInput;
+        [SerializeField, HideInInspector] protected PlayerInput playerInput;
 
 
         private void OnValidate()
         {
+            if (!playerInput) 
+            {
+                Debug.Log("No Player Input was set!");
+            }
 
             if (playerInput && playerInput.notificationBehavior != PlayerNotifications.InvokeCSharpEvents)
             {
@@ -49,20 +52,7 @@ namespace DNExtensions.InputSystem
 
         
 
-        [Button("Toggle Cursor")]
-        public void ToggleCursorVisibility()
-        {
-            if (Cursor.visible)
-            {
-                Cursor.lockState = CursorLockMode.Confined;
-                Cursor.visible = false;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-            }
-        }
+
 
         
         public void SetCursorVisibility(bool state)
@@ -79,6 +69,21 @@ namespace DNExtensions.InputSystem
             }
         }
 
+        
+        [Button("Toggle Cursor")]
+        protected void ToggleCursorVisibility()
+        {
+            if (Cursor.visible)
+            {
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = false;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+        }
 
     }
 }

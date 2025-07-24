@@ -26,7 +26,7 @@ namespace DNExtensions.MenuSystem
 
             if (_animationSequence.isAlive) _animationSequence.Stop();
 
-            _animationSequence = Sequence.Create()
+            _animationSequence = Sequence.Create(useUnscaledTime: true)
                 .Group(Tween.UIAnchoredPosition3D(animatedObject, startPosition, endPosition, duration, ease,
                     startDelay: delay));
         }
@@ -37,7 +37,7 @@ namespace DNExtensions.MenuSystem
 
             if (_animationSequence.isAlive) _animationSequence.Stop();
 
-            _animationSequence = Sequence.Create()
+            _animationSequence = Sequence.Create(useUnscaledTime: true)
                     .Group(Tween.UIAnchoredPosition3D(animatedObject, endPosition, startPosition, duration, ease,
                         startDelay: delay))
                 ;

@@ -92,6 +92,8 @@ namespace DNExtensions.VFXManager
                 DefaultIconPosition = iconImage.rectTransform.localPosition;
                 DefaultIconScale = iconImage.rectTransform.localScale;
                 DefaultIconRotation = iconImage.rectTransform.localEulerAngles;
+                
+                iconImage.color = Color.clear;
             }
 
             if (fullScreenImage)
@@ -101,6 +103,8 @@ namespace DNExtensions.VFXManager
                 DefaultFullScreenPosition = fullScreenImage.rectTransform.localPosition;
                 DefaultFullScreenScale = fullScreenImage.rectTransform.localScale;
                 DefaultFullScreenRotation = fullScreenImage.rectTransform.localEulerAngles;
+                
+                fullScreenImage.color = Color.clear;
             }
             
             SetupPostProcessingVolume();
@@ -236,6 +240,17 @@ namespace DNExtensions.VFXManager
                 .ChainCallback(vfxSequence.ResetEffects);
 
             return vfxDuration;
+        }
+
+        /// <summary>
+        /// Gets a random sequence from the sequences list.
+        /// </summary>
+        public SOVFEffectsSequence GetRandomEffect()
+        {
+            var randomVFXIndex = Random.Range(0, effectsSequences.Length);
+            var vfxSequence = effectsSequences[randomVFXIndex];
+
+            return vfxSequence;
         }
         
         /// <summary>

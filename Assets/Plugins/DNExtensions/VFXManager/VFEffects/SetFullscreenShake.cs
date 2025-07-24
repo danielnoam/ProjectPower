@@ -35,7 +35,7 @@ namespace DNExtensions.VFXManager
             var effectDurationValue = sequenceDuration * duration.maxValue - startDelay;
             
             if (_sequence.isAlive) _sequence.Stop();
-            _sequence = Sequence.Create()
+            _sequence = Sequence.Create(useUnscaledTime: true)
                         .Group(Tween.PunchLocalPosition(_image.rectTransform, shakeStrength, effectDurationValue, frequency, snapping, ease, startDelay: startDelay));
         }
 

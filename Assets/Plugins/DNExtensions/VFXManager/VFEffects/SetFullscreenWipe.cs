@@ -36,7 +36,7 @@ namespace DNExtensions.VFXManager
                 _image = VFXManager.Instance.FullScreenImage;
                 
                 Canvas canvas = _image.GetComponentInParent<Canvas>();
-                if (canvas != null)
+                if (canvas)
                 {
                     _canvasRect = canvas.GetComponent<RectTransform>();
                 }
@@ -49,7 +49,7 @@ namespace DNExtensions.VFXManager
             Vector3 endPos = GetPositionForDirection(endDirection);
             
             if (_sequence.isAlive) _sequence.Stop();
-            _sequence = Sequence.Create()
+            _sequence = Sequence.Create(useUnscaledTime: true)
                         .Group(Tween.LocalPosition(_image.rectTransform, startPos, endPos, effectDurationValue, ease, startDelay: startDelay));
         }
 

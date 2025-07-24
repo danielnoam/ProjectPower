@@ -48,7 +48,7 @@ namespace DNExtensions.VFXManager
             var effectDurationValue = sequenceDuration * duration.maxValue - startDelay;
             
             if (_sequence.isAlive) _sequence.Stop();
-            _sequence = Sequence.Create();
+            _sequence = Sequence.Create(useUnscaledTime: true);
             
             // Intensity animation
             var intensity = useDefaultIntensity ? VFXManager.Instance.DefaultMotionBlurIntensity : startIntensity;
