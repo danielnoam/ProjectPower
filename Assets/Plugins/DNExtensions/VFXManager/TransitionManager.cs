@@ -57,7 +57,7 @@ namespace DNExtensions.VFXManager
             
 
             var transitionDuration = VFXManager.Instance.PlayVFX(vfxSequenceIn);
-            _pendingOutSequence = vfxSequenceOut;
+            if (vfxSequenceOut) _pendingOutSequence = vfxSequenceOut;
 
             _activeTransition = Sequence.Create()
                 .ChainDelay(transitionDuration)
@@ -86,7 +86,7 @@ namespace DNExtensions.VFXManager
             }
             
             var transitionDuration = VFXManager.Instance.PlayVFX(vfxSequenceIn);
-            _pendingOutSequence = vfxSequenceOut;
+            if (vfxSequenceOut) _pendingOutSequence = vfxSequenceOut;
 
             _activeTransition = Sequence.Create()
                 .ChainDelay(transitionDuration)
@@ -114,7 +114,7 @@ namespace DNExtensions.VFXManager
             }
             
             var transitionDuration = VFXManager.Instance.PlayVFX(vfxSequenceIn);
-            _pendingOutSequence = vfxSequenceOut;
+            if (vfxSequenceOut) _pendingOutSequence = vfxSequenceOut;
             
 
             _activeTransition = Sequence.Create()
